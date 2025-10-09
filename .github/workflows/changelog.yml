@@ -25,10 +25,9 @@ jobs:
         run: |
           uv venv
           uv add commitizen
-          .venv/bin/cz bump --yes --changelog --annotated-tag --annotated-tag-message "Version release $(cz version --project)" || (echo "Bump not possible" && exit 0)
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          cz changelog
+          .venv/bin/cz changelog
           git add CHANGELOG.md
           git commit -m "docs: next release updates [skip ci]" || echo "Nothing to be commited"
       - name: Push changes
