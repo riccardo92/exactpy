@@ -1,6 +1,6 @@
 [project]
 name = "exactpy"
-version = "0.0.2"
+version = "0.0.3"
 description = "Modern Python interface to the exact online API"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -40,7 +40,7 @@ log_cli = "true"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.0.2"
+version = "0.0.3"
 tag_format = "$version"
 changelog_incremental = true
 update_changelog_on_bump = true
