@@ -1,11 +1,12 @@
 [project]
 name = "exactpy"
-version = "0.0.1"
+version = "0.0.2"
 description = "Modern Python interface to the exact online API"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "azure-keyvault-secrets>=4.10.0",
+    "commitizen>=4.9.1",
     "loguru>=0.7.3",
     "pydantic>=2.12.0",
     "requests-oauthlib>=2.0.0",
@@ -39,7 +40,7 @@ log_cli = "true"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.0.1"
+version = "0.0.2"
 tag_format = "$version"
 changelog_incremental = true
 update_changelog_on_bump = true
