@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev
+    tags-ignore:
+      - "**"
 
 jobs:
   changelog:
@@ -29,7 +31,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           .venv/bin/cz changelog
           git add CHANGELOG.md
-          git commit -m "docs: next release updates [skip ci]" || echo "Nothing to be commited"
+          git commit -m "docs: next release updates" || echo "Nothing to be commited"
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
