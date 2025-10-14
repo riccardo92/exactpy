@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **tag.yml**: no persist credentials
+
 ## 0.0.5 (2025-10-14)
 
 ### Fix
