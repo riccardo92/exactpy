@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **workflows**: added branch conditions
+
 ## 0.0.7 (2025-10-14)
 
 ### Fix
