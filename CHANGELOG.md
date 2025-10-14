@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.7 (2025-10-14)
+
+### Fix
+
+- **workflows**: using branch/tag conditions instead of [skip ci]
+
 ## 0.0.6 (2025-10-14)
 
 ### Fix
