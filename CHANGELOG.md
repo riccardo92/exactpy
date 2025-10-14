@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **tag.yml**: fixed arg name for PAT token
+
 ## 0.0.3 (2025-10-10)
 
 ### Fix
