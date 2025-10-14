@@ -8,6 +8,7 @@ on:
 jobs:
   bump_version:
     runs-on: ubuntu-latest
+    if: !startsWith(github.event.head_commit.message , 'release')
     name: "Bump version and create changelog with commitizen"
     steps:
       - name: Check out
@@ -31,11 +32,11 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          token: ${{ secrets.PAT }}
+          github_token: ${{ secrets.PAT }}
           branch: main
           tags: true
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          token: ${{ secrets.PAT }}
+          github_token: ${{ secrets.PAT }}
           branch: dev
