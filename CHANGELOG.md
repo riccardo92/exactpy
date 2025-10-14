@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **tag.yml**: idem for changelog job
+- **pyproject.toml**: removed [skip ci] from bump message
+- **workflows**: hopefully fixed tag trigger using annotated tag
+
 ## 0.0.4 (2025-10-14)
 
 ### Fix
