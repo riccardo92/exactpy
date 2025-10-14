@@ -31,11 +31,11 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          token: ${{ secrets.PAT }}
+          github_token: ${{ secrets.PAT }}
           branch: main
           tags: true
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          token: ${{ secrets.PAT }}
+          github_token: ${{ secrets.PAT }}
           branch: dev
