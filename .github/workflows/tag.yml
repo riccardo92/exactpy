@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - main
-    tags-ignore:
-      - "**"
 
 jobs:
   bump_version:
+    if: "!contains(github.event.head_commit.message, 'release')"
     runs-on: ubuntu-latest
     name: "Bump version and create changelog with commitizen"
     steps:
