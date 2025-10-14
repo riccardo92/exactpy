@@ -8,7 +8,8 @@ on:
 jobs:
   bump_version:
     runs-on: ubuntu-latest
-    name: "Bump version and create changelog with commitizen"
+    name: "Create changelog with commitizen"
+    if: !startsWith(github.event.head_commit.message , 'release')
     steps:
       - name: Check out
         uses: actions/checkout@v3
