@@ -4,6 +4,7 @@
 
 ### Fix
 
+- **tag.yml**: removed redundant condition
 - **tag.yml**: idem for changelog job
 - **pyproject.toml**: removed [skip ci] from bump message
 - **workflows**: hopefully fixed tag trigger using annotated tag
