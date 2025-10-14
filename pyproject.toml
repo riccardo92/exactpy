@@ -51,4 +51,3 @@ annotated_tag = true
 [tool.deptry]
 pep621_dev_dependency_groups = ["precommit", "test"]
 known_first_party = ["exactpy"]
-
