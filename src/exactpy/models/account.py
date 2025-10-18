@@ -168,27 +168,27 @@ class Account(ExactOnlineBaseModel):
     vat_number: str | None = None
     website: str | None = None
 
-    @staticmethod
-    def all():
-        return [
-            Account(
-                id="1",
-                account_manager_hid=0,
-                invoice_attachment_type=0,
-                invoicing_method=0,
-                peppol_identifier_type=0,
-                purchase_lead_days=0,
-                security_level=0,
-                shipping_lead_days=0,
-            ),
-            Account(
-                id="2",
-                account_manager_hid=0,
-                invoice_attachment_type=0,
-                invoicing_method=0,
-                peppol_identifier_type=0,
-                purchase_lead_days=0,
-                security_level=0,
-                shipping_lead_days=0,
-            ),
-        ]
+    # @staticmethod
+    # def all():
+    #     return [
+    #         Account(
+    #             id="1",
+    #             account_manager_hid=0,
+    #             invoice_attachment_type=0,
+    #             invoicing_method=0,
+    #             peppol_identifier_type=0,
+    #             purchase_lead_days=0,
+    #             security_level=0,
+    #             shipping_lead_days=0,
+    #         ),
+    #         Account(
+    #             id="2",
+    #             account_manager_hid=0,
+    #             invoice_attachment_type=0,
+    #             invoicing_method=0,
+    #             peppol_identifier_type=0,
+    #             purchase_lead_days=0,
+    #             security_level=0,
+    #             shipping_lead_days=0,
+    #         ),
+    #     ]

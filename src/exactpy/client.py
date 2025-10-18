@@ -4,12 +4,10 @@ from typing import Callable
 from loguru import logger
 
 from exactpy.auth import Auth
-from exactpy.models.account import Account
+from exactpy.controllers.account import AccountController
 
 
 class Client:
-    account = Account.set_as_property()
-
     def __init__(
         self,
         client_id: str,
@@ -37,6 +35,8 @@ class Client:
             endpoints_url (str | None, optional): the v1 endpoints url. Defaults to None. If unset (None), it will be derived from base_url
             verbose (bool, optional): _description_. Defaults to True.
         """
+
+        self.accounts = AccountController(self)
 
         self.client_id = client_id
         self.client_secret = client_secret
