@@ -113,7 +113,7 @@ class Client:
         return ",".join(filters)
 
     @staticmethod
-    def get_skip_token(next_url: str) -> str:
+    def _get_skip_token(next_url: str) -> str:
         """Get skip token from next url.
 
         Args:

@@ -73,7 +73,7 @@ class BaseController:
         results = adapter.validate_json(resp["d"]["results"])
 
         while (next_url := resp["d"].get("__next")) is not None:
-            skip_token = self._client.get_skip_token(next_url)
+            skip_token = self._client._get_skip_token(next_url)
             resp = self._client.get(
                 resource=self.resource,
                 filters=filters,
