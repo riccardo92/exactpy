@@ -17,24 +17,22 @@ class Auth:
     Args:
         client_id (str): The Exact Online oauth client ID
         client_secret (str): The Exact Online oauth client secret
-        redirect_url (str): The redirect url, needs to match exactly what
-            was entered in the app registration in the Exact Online portal.
     """
 
     def __init__(
         self,
         client_id: str,
         client_secret: str,
-        redirect_url: str,
         auth_url: str,
+        token_url: str,
         cache_callable: Callable | None = None,
         cache_callable_kwargs: dict = {},
         verbose: bool = False,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.redirect_url = redirect_url
         self.auth_url = auth_url
+        self.token_url = token_url
         self.verbose = verbose
         self.token_info = {}
         self.caching_enabled = False
@@ -77,14 +75,18 @@ class Auth:
         state = parse_qs(parsed_url.query)["state"][0]
         return code, state
 
-    def get_authorization_url(self) -> str:  # pragma: no cover
+    def get_authorization_url(self, redirect_url: str) -> str:  # pragma: no cover
         """Get Exact Online oauth authorization url that can be used to authorize
         the client to obtain a token.
+
+        Args:
+        redirect_url (str): The redirect url, needs to match exactly what
+            was entered in the app registration in the Exact Online portal.
 
         Returns:
             str: the authorization url.
         """
-        oauth_session = OAuth2Session(self.client_id, redirect_uri=self.redirect_url)
+        oauth_session = OAuth2Session(self.client_id, redirect_uri=redirect_url)
         authorization_url, _ = oauth_session.authorization_url(self.auth_url)
         return authorization_url
 
@@ -163,3 +165,11 @@ class Auth:
             bool: whether a token refresh is needed
         """
         return self.token_info.get("expires_on", 0) - now < 30
+
+    def _check_token_and_get_headers(self):
+        """Performs token refresh if needed and returns bearer token header"""
+
+        if self.is_token_refresh_needed():
+            self.refresh_token()
+
+        return {"Authorization": f"Bearer {self.token_info['access_token']}"}
