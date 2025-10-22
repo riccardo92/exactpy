@@ -17,6 +17,8 @@ class Auth:
     Args:
         client_id (str): The Exact Online oauth client ID
         client_secret (str): The Exact Online oauth client secret
+        redirect_url (str): The redirect url, needs to match exactly what
+            was entered in the app registration in the Exact Online portal.
     """
 
     def __init__(
@@ -25,14 +27,38 @@ class Auth:
         client_secret: str,
         auth_url: str,
         token_url: str,
+        redirect_url: str,
         cache_callable: Callable | None = None,
         cache_callable_kwargs: dict = {},
+        read_cache_callable: Callable | None = None,
+        read_cache_callable_kwargs: dict = {},
         verbose: bool = False,
     ):
+        """_summary_
+
+        Args:
+            client_id (str): The Exact Online oauth client ID
+            client_secret (str): The Exact Online oauth client secret
+            auth_url (str): The oauth2 authentication url.
+            token_url (str): The oauth2 token url.
+            redirect_url (str): The redirect url, needs to match exactly what
+                was entered in the app registration in the Exact Online portal.
+            cache_callable (Callable | None, optional): Callable to use for caching token info.
+                Defaults to None. If set tot None, caching as well as cache loading will be
+                disabled.
+            cache_callable_kwargs (dict, optional): Keyword arguments to use for cache_callable.
+                Defaults to {}.
+            read_cache_callable (Callable | None, optional): Callable to use for loading cached token info.
+                Defaults to None. If caching was disabled, loading cache won't happen either.
+            read_cache_callable_kwargs (dict, optional): Keyword arguments to use for read_cache_callable.
+                Defaults to {}.
+            verbose (bool, optional): Whether to print verbose logs. Defaults to False.
+        """
         self.client_id = client_id
         self.client_secret = client_secret
         self.auth_url = auth_url
         self.token_url = token_url
+        self.redirect_url = redirect_url
         self.verbose = verbose
         self.token_info = {}
         self.caching_enabled = False
@@ -40,6 +66,17 @@ class Auth:
             self.cache_callable = cache_callable
             self.cache_callable_kwargs = cache_callable_kwargs
             self.caching_enabled = True
+        if read_cache_callable is not None:
+            self.read_cache_callable = read_cache_callable
+            self.read_cache_callable_kwargs = read_cache_callable_kwargs
+
+        # Attempt to load token info
+        if self.caching_enabled:
+            if self.verbose:
+                logger.info("Caching enabled. Attempting to load cache.")
+            self.token_info = self.read_cache_callable(
+                **self.read_cache_callable_kwargs
+            )
 
     @staticmethod
     def cache_creds(contents: dict, cache_path: Union[Path, str]):  # pragma: no cover
@@ -56,6 +93,21 @@ class Auth:
             json.dump(contents, fp)
 
     @staticmethod
+    def load_creds(cache_path: Union[Path, str]):  # pragma: no cover
+        """TODO
+
+        Args:
+            path (Union[Path, str]): The path to cache to.
+        """
+        cache_path = Path(cache_path)
+
+        if not cache_path.exists():
+            return
+        with open(cache_path, "r") as fp:
+            contents = json.load(fp)
+        return contents
+
+    @staticmethod
     def parse_response_url(response_url: str) -> Tuple[str, str]:
         """This method parses the response url received from
         Exact Online's oauth implementation and extracts both
@@ -65,7 +117,7 @@ class Auth:
 
         Args:
             response_url (str): The response that Exact Online
-            redirected us to.
+                redirected us to.
 
         Returns:
             Tuple[str, str]: A tuple containing code and state respectively.
@@ -75,18 +127,14 @@ class Auth:
         state = parse_qs(parsed_url.query)["state"][0]
         return code, state
 
-    def get_authorization_url(self, redirect_url: str) -> str:  # pragma: no cover
+    def get_authorization_url(self) -> str:  # pragma: no cover
         """Get Exact Online oauth authorization url that can be used to authorize
         the client to obtain a token.
-
-        Args:
-        redirect_url (str): The redirect url, needs to match exactly what
-            was entered in the app registration in the Exact Online portal.
 
         Returns:
             str: the authorization url.
         """
-        oauth_session = OAuth2Session(self.client_id, redirect_uri=redirect_url)
+        oauth_session = OAuth2Session(self.client_id, redirect_uri=self.redirect_url)
         authorization_url, _ = oauth_session.authorization_url(self.auth_url)
         return authorization_url
 
@@ -98,10 +146,10 @@ class Auth:
         """
         _, state = Auth.parse_response_url(redirect_response_url)
         oauth_session = OAuth2Session(
-            client_id=self.client_id, state=state, redirect_uri=self.redirect_uri
+            client_id=self.client_id, state=state, redirect_uri=self.redirect_url
         )
         oauth_session.fetch_token(
-            self.token_url,
+            token_url=self.token_url,
             client_secret=self.client_secret,
             authorization_response=redirect_response_url,
         )
@@ -131,7 +179,7 @@ class Auth:
 
         try:
             oauth_session.refresh_token(
-                url=self.token_url,
+                token_url=self.token_url,
                 client_id=self.client_id,
                 client_secret=self.client_secret,
             )
