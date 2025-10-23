@@ -17,8 +17,20 @@ class Auth:
     Args:
         client_id (str): The Exact Online oauth client ID
         client_secret (str): The Exact Online oauth client secret
+        auth_url (str): The oauth2 authentication url.
+        token_url (str): The oauth2 token url.
         redirect_url (str): The redirect url, needs to match exactly what
             was entered in the app registration in the Exact Online portal.
+        cache_callable (Callable | None, optional): Callable to use for caching token info.
+            Defaults to None. If set tot None, caching as well as cache loading will be
+            disabled.
+        cache_callable_kwargs (dict, optional): Keyword arguments to use for cache_callable.
+            Defaults to {}.
+        read_cache_callable (Callable | None, optional): Callable to use for loading cached token info.
+            Defaults to None. If caching was disabled, loading cache won't happen either.
+        read_cache_callable_kwargs (dict, optional): Keyword arguments to use for read_cache_callable.
+            Defaults to {}.
+        verbose (bool, optional): Whether to print verbose logs. Defaults to False.
     """
 
     def __init__(
@@ -28,32 +40,13 @@ class Auth:
         auth_url: str,
         token_url: str,
         redirect_url: str,
-        cache_callable: Callable | None = None,
-        cache_callable_kwargs: dict = {},
+        caching_enabled: bool = True,
+        write_cache_callable: Callable | None = None,
+        write_cache_callable_kwargs: dict = {},
         read_cache_callable: Callable | None = None,
         read_cache_callable_kwargs: dict = {},
         verbose: bool = False,
     ):
-        """_summary_
-
-        Args:
-            client_id (str): The Exact Online oauth client ID
-            client_secret (str): The Exact Online oauth client secret
-            auth_url (str): The oauth2 authentication url.
-            token_url (str): The oauth2 token url.
-            redirect_url (str): The redirect url, needs to match exactly what
-                was entered in the app registration in the Exact Online portal.
-            cache_callable (Callable | None, optional): Callable to use for caching token info.
-                Defaults to None. If set tot None, caching as well as cache loading will be
-                disabled.
-            cache_callable_kwargs (dict, optional): Keyword arguments to use for cache_callable.
-                Defaults to {}.
-            read_cache_callable (Callable | None, optional): Callable to use for loading cached token info.
-                Defaults to None. If caching was disabled, loading cache won't happen either.
-            read_cache_callable_kwargs (dict, optional): Keyword arguments to use for read_cache_callable.
-                Defaults to {}.
-            verbose (bool, optional): Whether to print verbose logs. Defaults to False.
-        """
         self.client_id = client_id
         self.client_secret = client_secret
         self.auth_url = auth_url
@@ -61,14 +54,11 @@ class Auth:
         self.redirect_url = redirect_url
         self.verbose = verbose
         self.token_info = {}
-        self.caching_enabled = False
-        if cache_callable is not None:
-            self.cache_callable = cache_callable
-            self.cache_callable_kwargs = cache_callable_kwargs
-            self.caching_enabled = True
-        if read_cache_callable is not None:
-            self.read_cache_callable = read_cache_callable
-            self.read_cache_callable_kwargs = read_cache_callable_kwargs
+        self.caching_enabled = caching_enabled
+        self.write_cache_callable = write_cache_callable
+        self.write_cache_callable_kwargs = write_cache_callable_kwargs
+        self.read_cache_callable = read_cache_callable
+        self.read_cache_callable_kwargs = read_cache_callable_kwargs
 
         # Attempt to load token info
         if self.caching_enabled:
@@ -79,8 +69,8 @@ class Auth:
             )
 
     @staticmethod
-    def cache_creds(contents: dict, cache_path: Union[Path, str]):  # pragma: no cover
-        """This is the default caching method for credentials.
+    def write_cache(contents: dict, cache_path: Union[Path, str]):  # pragma: no cover
+        """This is the default method for writing credentials.
         It serializes and saves a the received credential dict
         in string form to the given path.
 
@@ -93,8 +83,10 @@ class Auth:
             json.dump(contents, fp)
 
     @staticmethod
-    def load_creds(cache_path: Union[Path, str]):  # pragma: no cover
-        """TODO
+    def read_cache(cache_path: Union[Path, str]):  # pragma: no cover
+        """This is the default method for reading credentials cache.
+        It serializes and saves a the received credential dict
+        in string form to the given path.
 
         Args:
             path (Union[Path, str]): The path to cache to.
@@ -163,7 +155,9 @@ class Auth:
         if self.caching_enabled:
             if self.verbose:
                 logger.info("Caching enabled. Caching credentials.")
-            self.cache_callable(contents=self.token_info, **self.cache_callable_kwargs)
+            self.write_cache_callable(
+                contents=self.token_info, **self.write_cache_callable_kwargs
+            )
 
     def refresh_token(self):  # pragma: no cover
         """Attempt to refresh oauth access token using the refresh token."""
@@ -193,8 +187,8 @@ class Auth:
             if self.caching_enabled:
                 if self.verbose:
                     logger.info("Caching enabled. Caching credentials.")
-                self.cache_callable(
-                    contents=self.token_info, **self.cache_callable_kwargs
+                self.write_cache_callable(
+                    contents=self.token_info, **self.write_cache_callable_kwargs
                 )
 
         except Exception:
