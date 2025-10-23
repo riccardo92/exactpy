@@ -1,23 +1,21 @@
 from datetime import datetime
-from typing import List
 
 from exactpy.models import ExactOnlineBaseModel
-from exactpy.models.bank_account import BankAccount
 
 
 class Account(ExactOnlineBaseModel):
-    id: str
+    id: str | None = None
     accountant: str | None = None
     account_manager: str | None = None
     account_manager_full_name: str | None = None
-    account_manager_hid: int
+    account_manager_hid: int | None = None
     activity_sector: str | None = None
     activity_sub_sector: str | None = None
     address_line1: str | None = None
     address_line2: str | None = None
     address_line3: str | None = None
-    automatic_process_proposed_entry: bytes | None = None
-    bank_accounts: List[BankAccount] = []
+    automatic_process_proposed_entry: int | None = None
+    # bank_accounts: List[BankAccount] = []
     blocked: bool = False
     brin: str | None = None
     bsn: str | None = None
@@ -38,11 +36,11 @@ class Account(ExactOnlineBaseModel):
     code: str | None = None
     code_at_supplier: str | None = None
     company_size: str | None = None
-    consolidation_scenario: bytes | None = None
+    consolidation_scenario: int | None = None
     controlled_date: datetime | None = None
     cost_center: str | None = None
     cost_center_description: str | None = None
-    cost_paid: bytes | None = None
+    cost_paid: int | None = None
     country: str | None = None
     country_name: str | None = None
     created: datetime | None = None
@@ -62,7 +60,7 @@ class Account(ExactOnlineBaseModel):
     document: str | None = None
     duns_number: str | None = None
     email: str | None = None
-    enable_sales_payment_link: bool = False
+    enable_sales_payment_link: bool | None = None
     end_date: datetime | None = None
     eori_number: str | None = None
     established_date: datetime | None = None
@@ -72,7 +70,7 @@ class Account(ExactOnlineBaseModel):
     glap: str | None = None
     glar: str | None = None
     gln_number: str | None = None
-    has_withholding_tax_sales: bool = False
+    has_withholding_tax_sales: bool | None = None
     ignore_datev_warning_message: bool = False
     incoterm_address_purchase: str | None = None
     incoterm_address_sales: str | None = None
@@ -91,31 +89,31 @@ class Account(ExactOnlineBaseModel):
     invoice_account_name: str | None = None
     invoice_attachment_type: int
     invoicing_method: int
-    is_accountant: bytes | None = None
-    is_agency: bytes | None = None
-    is_anonymised: bytes | None = None
+    is_accountant: int | None = None
+    is_agency: int | None = None
+    is_anonymised: int | None = None
     is_bank: bool = False
-    is_competitor: bytes | None = None
-    is_extra_duty: bool = False
-    is_mailing: bytes | None = None
+    is_competitor: int | None = None
+    is_extra_duty: bool | None = None
+    is_mailing: int | None = None
     is_member: bool = False
     is_pilot: bool = False
     is_purchase: bool = False
     is_reseller: bool = False
     is_sales: bool = False
     is_supplier: bool = False
-    language: str = False
-    language_description: str = False
-    latitude: float = False
-    lead_purpose: str = False
-    lead_source: str = False
+    language: str | None = None
+    language_description: str | None = None
+    latitude: float | None = None
+    lead_purpose: str | None = None
+    lead_source: str | None = None
     logo: bytes | None = None
     logo_file_name: str | None = None
     logo_thumbnail_url: str | None = None
     logo_url: str | None = None
     longitude: float | None = None
     main_contact: str | None = None
-    modified: datetime | None = None
+    modified: datetime | None = None  #
     modifier: str | None = None
     modifier_full_name: str | None = None
     name: str | None = None
@@ -127,7 +125,7 @@ class Account(ExactOnlineBaseModel):
     payment_condition_sales: str | None = None
     payment_condition_sales_description: str | None = None
     peppol_identifier: str | None = None
-    peppol_identifier_type: int
+    peppol_identifier_type: int | None = None
     phone: str | None = None
     phone_extension: str | None = None
     postcode: str | None = None
@@ -152,15 +150,15 @@ class Account(ExactOnlineBaseModel):
     sales_vat_code_description: str | None = None
     search_code: str | None = None
     security_level: int
-    separate_inv_per_subscription: bytes | None = None
+    separate_inv_per_subscription: int | None = None
     shipping_lead_days: int
     shipping_method: str | None = None
-    show_remark_for_sales: bool = False
-    start_date: datetime | None = None
+    show_remark_for_sales: bool | None = None
+    start_date: datetime | None = None  #
     state: str | None = None
     state_name: str | None = None
     status: str | None = None
-    status_since: datetime | None = None
+    status_since: datetime | None = None  #
     trade_name: str | None = None
     type: str | None = None
     unique_taxpayer_reference: str | None = None
