@@ -90,9 +90,7 @@ class BaseController:
                 select=select,
                 skip_token=skip_token,
             ).json()
-            temp_results = adapter.validate_python(
-                json_data=resp["d"]["results"], extra="ignore"
-            )
+            temp_results = adapter.validate_python(resp["d"]["results"], extra="ignore")
             results.extend(temp_results)
 
         if self._client.verbose:

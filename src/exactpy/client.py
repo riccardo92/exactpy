@@ -152,6 +152,7 @@ class Client:
         filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
         select: List[str] = [],
         include_division: bool = True,
+        skip_token: str | None = None,
     ):
         """Calls a get endpoint.
 
@@ -162,7 +163,7 @@ class Client:
             filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or).
             select (List[str]): Attributes to select. Defaults to [].
             include_division (bool): Whether to include the current division in the url. Defaults to True.
-
+            skip_token: (str, Optional): A skiptoken query arg, used for paging in the Exact Online rest api. Defaults to None.
         Returns:
             httpx.Response: the API call httpx response object.
         """
@@ -183,6 +184,9 @@ class Client:
 
         join_str = ("?", "&")[len(filters) > 0]
         url += ("", f"{join_str}$select={parsed_select}")[len(select) > 0]
+
+        join_str = ("?", "&")[len(filters) > 0 or len(select) > 0]
+        url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
         req = httpx.get(url=url, headers=headers)
         req.raise_for_status()

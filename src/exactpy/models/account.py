@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from exactpy.models import ExactOnlineBaseModel
+from exactpy.types import ExactUnixTimestamp
 
 
 class Account(ExactOnlineBaseModel):
@@ -37,19 +36,19 @@ class Account(ExactOnlineBaseModel):
     code_at_supplier: str | None = None
     company_size: str | None = None
     consolidation_scenario: int | None = None
-    controlled_date: datetime | None = None
+    controlled_date: ExactUnixTimestamp
     cost_center: str | None = None
     cost_center_description: str | None = None
     cost_paid: int | None = None
     country: str | None = None
     country_name: str | None = None
-    created: datetime | None = None
+    created: ExactUnixTimestamp
     creator: str | None = None
     creator_full_name: str | None = None
     credit_line_purchase: float | None = None
     credit_line_sales: float | None = None
     currency: str | None = None
-    customer_since: datetime | None = None
+    customer_since: ExactUnixTimestamp
     custom_field: str | None = None
     datev_creditor_code: str | None = None
     datev_debtor_code: str | None = None
@@ -61,9 +60,9 @@ class Account(ExactOnlineBaseModel):
     duns_number: str | None = None
     email: str | None = None
     enable_sales_payment_link: bool | None = None
-    end_date: datetime | None = None
+    end_date: ExactUnixTimestamp
     eori_number: str | None = None
-    established_date: datetime | None = None
+    established_date: ExactUnixTimestamp
     fax: str | None = None
     gl_account_purchase: str | None = None
     gl_account_sales: str | None = None
@@ -113,7 +112,7 @@ class Account(ExactOnlineBaseModel):
     logo_url: str | None = None
     longitude: float | None = None
     main_contact: str | None = None
-    modified: datetime | None = None  #
+    modified: ExactUnixTimestamp
     modifier: str | None = None
     modifier_full_name: str | None = None
     name: str | None = None
@@ -154,39 +153,14 @@ class Account(ExactOnlineBaseModel):
     shipping_lead_days: int
     shipping_method: str | None = None
     show_remark_for_sales: bool | None = None
-    start_date: datetime | None = None  #
+    start_date: ExactUnixTimestamp
     state: str | None = None
     state_name: str | None = None
     status: str | None = None
-    status_since: datetime | None = None  #
+    status_since: ExactUnixTimestamp
     trade_name: str | None = None
     type: str | None = None
     unique_taxpayer_reference: str | None = None
     vat_liability: str | None = None
     vat_number: str | None = None
     website: str | None = None
-
-    # @staticmethod
-    # def all():
-    #     return [
-    #         Account(
-    #             id="1",
-    #             account_manager_hid=0,
-    #             invoice_attachment_type=0,
-    #             invoicing_method=0,
-    #             peppol_identifier_type=0,
-    #             purchase_lead_days=0,
-    #             security_level=0,
-    #             shipping_lead_days=0,
-    #         ),
-    #         Account(
-    #             id="2",
-    #             account_manager_hid=0,
-    #             invoice_attachment_type=0,
-    #             invoicing_method=0,
-    #             peppol_identifier_type=0,
-    #             purchase_lead_days=0,
-    #             security_level=0,
-    #             shipping_lead_days=0,
-    #         ),
-    #     ]
