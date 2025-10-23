@@ -17,35 +17,60 @@ class Auth:
     Args:
         client_id (str): The Exact Online oauth client ID
         client_secret (str): The Exact Online oauth client secret
+        auth_url (str): The oauth2 authentication url.
+        token_url (str): The oauth2 token url.
         redirect_url (str): The redirect url, needs to match exactly what
             was entered in the app registration in the Exact Online portal.
+        cache_callable (Callable | None, optional): Callable to use for caching token info.
+            Defaults to None. If set tot None, caching as well as cache loading will be
+            disabled.
+        cache_callable_kwargs (dict, optional): Keyword arguments to use for cache_callable.
+            Defaults to {}.
+        read_cache_callable (Callable | None, optional): Callable to use for loading cached token info.
+            Defaults to None. If caching was disabled, loading cache won't happen either.
+        read_cache_callable_kwargs (dict, optional): Keyword arguments to use for read_cache_callable.
+            Defaults to {}.
+        verbose (bool, optional): Whether to print verbose logs. Defaults to False.
     """
 
     def __init__(
         self,
         client_id: str,
         client_secret: str,
-        redirect_url: str,
         auth_url: str,
-        cache_callable: Callable | None = None,
-        cache_callable_kwargs: dict = {},
+        token_url: str,
+        redirect_url: str,
+        caching_enabled: bool = True,
+        write_cache_callable: Callable | None = None,
+        write_cache_callable_kwargs: dict = {},
+        read_cache_callable: Callable | None = None,
+        read_cache_callable_kwargs: dict = {},
         verbose: bool = False,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
-        self.redirect_url = redirect_url
         self.auth_url = auth_url
+        self.token_url = token_url
+        self.redirect_url = redirect_url
         self.verbose = verbose
         self.token_info = {}
-        self.caching_enabled = False
-        if cache_callable is not None:
-            self.cache_callable = cache_callable
-            self.cache_callable_kwargs = cache_callable_kwargs
-            self.caching_enabled = True
+        self.caching_enabled = caching_enabled
+        self.write_cache_callable = write_cache_callable
+        self.write_cache_callable_kwargs = write_cache_callable_kwargs
+        self.read_cache_callable = read_cache_callable
+        self.read_cache_callable_kwargs = read_cache_callable_kwargs
+
+        # Attempt to load token info
+        if self.caching_enabled:
+            if self.verbose:
+                logger.info("Caching enabled. Attempting to load cache.")
+            self.token_info = self.read_cache_callable(
+                **self.read_cache_callable_kwargs
+            )
 
     @staticmethod
-    def cache_creds(contents: dict, cache_path: Union[Path, str]):  # pragma: no cover
-        """This is the default caching method for credentials.
+    def write_cache(contents: dict, cache_path: Union[Path, str]):  # pragma: no cover
+        """This is the default method for writing credentials.
         It serializes and saves a the received credential dict
         in string form to the given path.
 
@@ -58,6 +83,23 @@ class Auth:
             json.dump(contents, fp)
 
     @staticmethod
+    def read_cache(cache_path: Union[Path, str]):  # pragma: no cover
+        """This is the default method for reading credentials cache.
+        It serializes and saves a the received credential dict
+        in string form to the given path.
+
+        Args:
+            path (Union[Path, str]): The path to cache to.
+        """
+        cache_path = Path(cache_path)
+
+        if not cache_path.exists():
+            return
+        with open(cache_path, "r") as fp:
+            contents = json.load(fp)
+        return contents
+
+    @staticmethod
     def parse_response_url(response_url: str) -> Tuple[str, str]:
         """This method parses the response url received from
         Exact Online's oauth implementation and extracts both
@@ -67,7 +109,7 @@ class Auth:
 
         Args:
             response_url (str): The response that Exact Online
-            redirected us to.
+                redirected us to.
 
         Returns:
             Tuple[str, str]: A tuple containing code and state respectively.
@@ -96,10 +138,10 @@ class Auth:
         """
         _, state = Auth.parse_response_url(redirect_response_url)
         oauth_session = OAuth2Session(
-            client_id=self.client_id, state=state, redirect_uri=self.redirect_uri
+            client_id=self.client_id, state=state, redirect_uri=self.redirect_url
         )
         oauth_session.fetch_token(
-            self.token_url,
+            token_url=self.token_url,
             client_secret=self.client_secret,
             authorization_response=redirect_response_url,
         )
@@ -113,7 +155,9 @@ class Auth:
         if self.caching_enabled:
             if self.verbose:
                 logger.info("Caching enabled. Caching credentials.")
-            self.cache_callable(contents=self.token_info, **self.cache_callable_kwargs)
+            self.write_cache_callable(
+                contents=self.token_info, **self.write_cache_callable_kwargs
+            )
 
     def refresh_token(self):  # pragma: no cover
         """Attempt to refresh oauth access token using the refresh token."""
@@ -129,7 +173,7 @@ class Auth:
 
         try:
             oauth_session.refresh_token(
-                url=self.token_url,
+                token_url=self.token_url,
                 client_id=self.client_id,
                 client_secret=self.client_secret,
             )
@@ -143,8 +187,8 @@ class Auth:
             if self.caching_enabled:
                 if self.verbose:
                     logger.info("Caching enabled. Caching credentials.")
-                self.cache_callable(
-                    contents=self.token_info, **self.cache_callable_kwargs
+                self.write_cache_callable(
+                    contents=self.token_info, **self.write_cache_callable_kwargs
                 )
 
         except Exception:
@@ -163,3 +207,11 @@ class Auth:
             bool: whether a token refresh is needed
         """
         return self.token_info.get("expires_on", 0) - now < 30
+
+    def _check_token_and_get_headers(self):
+        """Performs token refresh if needed and returns bearer token header"""
+
+        if self.is_token_refresh_needed():
+            self.refresh_token()
+
+        return {"Authorization": f"Bearer {self.token_info['access_token']}"}
