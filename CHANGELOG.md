@@ -4,6 +4,13 @@
 
 ### Fix
 
+- added custom eo unix ts validator and serializer and fixed bug in controller paging functionality
+- **models/account.py**: fixed some wrong attribute types in Account model
+- **auth.py**: method name and argument name clean up
+- first working auth and client setup
+- **client.py**: method rename
+- implemented paging
+- api/controller setup basis finished; todo: add actual rest api methods
 - **exactpy/auth**: first full auth setup
 
 ## 0.0.8 (2025-10-14)
