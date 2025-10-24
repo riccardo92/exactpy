@@ -27,7 +27,7 @@ class Client:
         client_id: str,
         client_secret: str,
         redirect_url: str,
-        enabling_caching: bool = True,
+        caching_enabled: bool = True,
         write_cache_callable: Callable | None = Auth.write_cache,
         write_cache_callable_kwargs: dict = {"cache_path": Path("./creds.json")},
         read_cache_callable: Callable | None = Auth.read_cache,
@@ -44,10 +44,16 @@ class Client:
         Args:
             client_id (str): The Exact Online app registration client ID.
             client_secret (str): The Exact Online app registration client secret.
-            cache_callable (Callable, optional): The Callable to use to store the credentials. It must have argument token_dict of type dict.
-                If unset (None), no caching will be done. Defaults to exactpy.Auth.cache_creds.
-            cache_callable_kwargs (dict): Extra args to pass to cache_callable.
-                Defaults to { "cache_path": Path("./creds.json") } but can be customized when e.g. no path is needed.
+            caching_enabled (bool): Whether cache callables should be called automatically. Defaults to True.
+            cache_callable (Callable | None, optional): Callable to use for caching token info.
+                Defaults to None. If set tot None, caching as well as cache loading will be
+                disabled.
+            cache_callable_kwargs (dict, optional): Keyword arguments to use for cache_callable.
+                Defaults to {}.
+            read_cache_callable (Callable | None, optional): Callable to use for loading cached token info.
+                Defaults to None. If caching was disabled, loading cache won't happen either.
+            read_cache_callable_kwargs (dict, optional): Keyword arguments to use for read_cache_callable.
+                Defaults to {}.
             redirect_url (str): The redirect url, needs to match exactly what
                 was entered in the app registration in the Exact Online portal.
             base_url (str, optional): The API base url. Defaults to "https://start.exactonline.nl/api".
@@ -96,7 +102,7 @@ class Client:
             auth_url=auth_url,
             token_url=token_url,
             redirect_url=redirect_url,
-            # enabling_caching=enabling_caching,
+            caching_enabled=caching_enabled,
             write_cache_callable=write_cache_callable,
             write_cache_callable_kwargs=write_cache_callable_kwargs,
             read_cache_callable=read_cache_callable,

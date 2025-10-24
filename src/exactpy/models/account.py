@@ -3,7 +3,7 @@ from exactpy.types import ExactUnixTimestamp
 
 
 class Account(ExactOnlineBaseModel):
-    id: str | None = None
+    id: str
     accountant: str | None = None
     account_manager: str | None = None
     account_manager_full_name: str | None = None
@@ -61,13 +61,13 @@ class Account(ExactOnlineBaseModel):
     email: str | None = None
     enable_sales_payment_link: bool | None = None
     end_date: ExactUnixTimestamp
-    eori_number: str | None = None
+    eori__number: str | None = None
     established_date: ExactUnixTimestamp
     fax: str | None = None
-    gl_account_purchase: str | None = None
-    gl_account_sales: str | None = None
-    glap: str | None = None
-    glar: str | None = None
+    gl__account_purchase: str | None = None
+    gl__account_sales: str | None = None
+    glap__: str | None = None
+    glar__: str | None = None
     gln_number: str | None = None
     has_withholding_tax_sales: bool | None = None
     ignore_datev_warning_message: bool = False
@@ -116,7 +116,7 @@ class Account(ExactOnlineBaseModel):
     modifier: str | None = None
     modifier_full_name: str | None = None
     name: str | None = None
-    oin_number: str | None = None
+    oin__number: str | None = None
     parent: str | None = None
     pay_as_you_earn: str | None = None
     payment_condition_purchase: str | None = None
@@ -139,7 +139,7 @@ class Account(ExactOnlineBaseModel):
     reseller: str | None = None
     reseller_code: str | None = None
     reseller_name: str | None = None
-    rsin: str | None = None
+    rsin__: str | None = None
     sales_currency: str | None = None
     sales_currency_description: str | None = None
     sales_tax_schedule: str | None = None
@@ -161,6 +161,6 @@ class Account(ExactOnlineBaseModel):
     trade_name: str | None = None
     type: str | None = None
     unique_taxpayer_reference: str | None = None
-    vat_liability: str | None = None
-    vat_number: str | None = None
+    vat__liability: str | None = None
+    vat__number: str | None = None
     website: str | None = None

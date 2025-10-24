@@ -21,6 +21,7 @@ class Auth:
         token_url (str): The oauth2 token url.
         redirect_url (str): The redirect url, needs to match exactly what
             was entered in the app registration in the Exact Online portal.
+        caching_enabled (bool): Whether cache callables should be called automatically. Defaults to True.
         cache_callable (Callable | None, optional): Callable to use for caching token info.
             Defaults to None. If set tot None, caching as well as cache loading will be
             disabled.

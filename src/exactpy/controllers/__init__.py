@@ -83,6 +83,10 @@ class BaseController:
         ).json()
 
         adapter = TypeAdapter(List[self._model])
+        from pprint import pprint
+
+        print("*" * 100)
+        pprint(resp["d"]["results"][0])
         results = adapter.validate_python(resp["d"]["results"])
         p = 0
         if self._client.verbose:
