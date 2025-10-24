@@ -13,6 +13,11 @@ dependencies = [
     "requests-oauthlib>=2.0.0",
 ]
 
+[project.optional-dependencies]
+pandas = [
+    "pandas>=2.3.3",
+]
+
 [dependency-groups]
 pre-commit = [
     "deptry>=0.20.0",
