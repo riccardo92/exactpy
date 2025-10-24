@@ -7,6 +7,8 @@ from exactpy.auth import Auth
 CLIENT_ID = "some_id"
 CLIENT_SECRET = "some_secret"
 REDIRECT_URL = "https://www.some.uri"
+AUTH_URL = "https://www.some.uri/oauth/auth"
+TOKEN_URL = "https://www.some.uri/oauth/token"
 
 
 @pytest.fixture
@@ -14,8 +16,10 @@ def auth_instance():
     inst = Auth(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
+        auth_url=AUTH_URL,
+        token_url=TOKEN_URL,
         redirect_url=REDIRECT_URL,
-        cache_callable=None,
+        caching_enabled=False,
         verbose=True,
     )
 

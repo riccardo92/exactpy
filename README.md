@@ -1,6 +1,6 @@
 # ExactPy
 
-A modern, highly configurable Python interface to the Exact Online API based on Pydantic.
+A modern, highly configurable Python interface to the Exact Online API based on `Pydantic` and `httpx` and offers support for conversion to Pandas DataFrames.
 
 ## Installing
 

@@ -1,3 +1,5 @@
+import time
+from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Callable, Dict, List, Type
@@ -9,7 +11,7 @@ from loguru import logger
 from exactpy.auth import Auth
 from exactpy.controllers.account import AccountController
 from exactpy.controllers.me import MeController
-from exactpy.exceptions import NoDivisionSetException
+from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 
@@ -25,7 +27,7 @@ class Client:
         client_id: str,
         client_secret: str,
         redirect_url: str,
-        enabling_caching: bool = True,
+        caching_enabled: bool = True,
         write_cache_callable: Callable | None = Auth.write_cache,
         write_cache_callable_kwargs: dict = {"cache_path": Path("./creds.json")},
         read_cache_callable: Callable | None = Auth.read_cache,
@@ -42,10 +44,16 @@ class Client:
         Args:
             client_id (str): The Exact Online app registration client ID.
             client_secret (str): The Exact Online app registration client secret.
-            cache_callable (Callable, optional): The Callable to use to store the credentials. It must have argument token_dict of type dict.
-                If unset (None), no caching will be done. Defaults to exactpy.Auth.cache_creds.
-            cache_callable_kwargs (dict): Extra args to pass to cache_callable.
-                Defaults to { "cache_path": Path("./creds.json") } but can be customized when e.g. no path is needed.
+            caching_enabled (bool): Whether cache callables should be called automatically. Defaults to True.
+            cache_callable (Callable | None, optional): Callable to use for caching token info.
+                Defaults to None. If set tot None, caching as well as cache loading will be
+                disabled.
+            cache_callable_kwargs (dict, optional): Keyword arguments to use for cache_callable.
+                Defaults to {}.
+            read_cache_callable (Callable | None, optional): Callable to use for loading cached token info.
+                Defaults to None. If caching was disabled, loading cache won't happen either.
+            read_cache_callable_kwargs (dict, optional): Keyword arguments to use for read_cache_callable.
+                Defaults to {}.
             redirect_url (str): The redirect url, needs to match exactly what
                 was entered in the app registration in the Exact Online portal.
             base_url (str, optional): The API base url. Defaults to "https://start.exactonline.nl/api".
@@ -94,12 +102,20 @@ class Client:
             auth_url=auth_url,
             token_url=token_url,
             redirect_url=redirect_url,
+            caching_enabled=caching_enabled,
             write_cache_callable=write_cache_callable,
             write_cache_callable_kwargs=write_cache_callable_kwargs,
             read_cache_callable=read_cache_callable,
             read_cache_callable_kwargs=read_cache_callable_kwargs,
             verbose=self.verbose,
         )
+
+        self._rate_limits_max_daily_calls = -1
+        self._rate_limits_remaining_daily_calls = -1
+        self._rate_limits_daily_reset = -1.0
+        self._rate_limits_max_minutely_calls = -1
+        self._rate_limits_remaining_minutely_calls = -1
+        self._rate_limits_minutely_reset = -1.0
 
         # Set up endpoints
         self.accounts = AccountController(self)
@@ -145,6 +161,46 @@ class Client:
                 "You must set a division. You can pass this on init (current_division arg) or set it using client.division = client.get_current_division()."
             )
 
+    def get_current_division(self):
+        return self.me.show().current_division
+
+    def _update_rate_limits(self, headers: httpx.Headers):
+        """Updates usages and rate limits for current client
+        as given by Exact Online rest api response headers.
+
+        Args:
+            headers (httpx.Headers): The httpx call response headers.
+        """
+        if "x-ratelimit-limit" not in headers:
+            return
+
+        self._rate_limits_max_daily_calls = int(headers["x-ratelimit-limit"])
+        self._rate_limits_remaining_daily_calls = int(headers["x-ratelimit-remaining"])
+        self._rate_limits_daily_reset = float(headers["x-ratelimit-reset"]) / 1000
+        self._rate_limits_max_minutely_calls = int(
+            headers["x-ratelimit-minutely-limit"]
+        )
+        self._rate_limits_remaining_minutely_calls = int(
+            headers["x-ratelimit-minutely-remaining"]
+        )
+        self._rate_limits_minutely_reset = (
+            float(headers["x-ratelimit-minutely-reset"]) / 1000
+        )
+
+    def _check_rate_limits(self):
+        if self._rate_limits_remaining_minutely_calls == 0:
+            if self.verbose:
+                exp = datetime.fromtimestamp(self._rate_limits_minutely_reset)
+                logger.warning(
+                    f"No remaining minutely calls. Waiting until {exp.strftime('%H:%m')} to continue."
+                )
+            time.sleep(self._rate_limits_minutely_reset - time.time())
+
+        if self._rate_limits_remaining_daily_calls == 0:
+            raise DailyLimitExceededException(
+                "Daily limit has been exceeded and the default behavior is to error out. Try again later."
+            )
+
     def get(
         self,
         resource: str,
@@ -170,6 +226,8 @@ class Client:
         if include_division:
             self._check_division()
 
+        self._check_rate_limits()
+
         headers = self.auth_client._check_token_and_get_headers()
         headers.update(BASE_HEADERS)
 
@@ -190,6 +248,7 @@ class Client:
 
         req = httpx.get(url=url, headers=headers)
         req.raise_for_status()
+        self._update_rate_limits(req.headers)
 
         return req
 
@@ -216,6 +275,8 @@ class Client:
         if include_division:
             self._check_division()
 
+        self._check_rate_limits()
+
         headers = self.auth_client._check_token_and_get_headers()
         headers.update(BASE_HEADERS)
         parsed_select = ",".join(select)
@@ -227,8 +288,6 @@ class Client:
 
         req = httpx.get(url=url, headers=headers)
         req.raise_for_status()
+        self._update_rate_limits(req.headers)
 
         return req
-
-    def get_current_division(self):
-        return self.me.show().current_division

@@ -45,19 +45,27 @@ class BaseController:
         )
 
     def all(
-        self, filters: Dict[str, Union[str, int, float]] = {}, select: List[str] = []
+        self,
+        filters: Dict[str, Union[str, int, float]] = {},
+        select: List[str] = [],
+        max_pages: int = -1,
     ) -> List[Type[ExactOnlineBaseModel]]:
-        """Retrieve list of pydantic model instances based on set filters.
+        """_summary_
 
         Args:
-            filters (Dict[str, Union[str, int, float]], optional): Dict of filter key, value pairs. Defaults to {}.
+            filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key, value pairs. Defaults to {}
+            select (List[str], optional): Attributes to select (in Exact Online naming, so Pascal case). Defaults to [].
+            max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
 
         Raises:
-            NoFilterSetException: Raised when a filter is mandatory but no filter was set.
+            NoFilterSetException:  Raised when a filter is mandatory but no filter was set.
 
         Returns:
-            List[Type[ExactOnlineBaseModel]]: List of instances of subclasses of ExactOnlineBaseModel.
+            List[Type[ExactOnlineBaseModel]]: List of instances of a subclass of ExactOnlineBaseModel.
         """
+        if max_pages == 0:
+            return []
+
         if len(self._mandatory_filter_options) > 0 and len(filters) == 0:
             raise NoFilterSetException(
                 f"This model requires a mandatory filter. Choices are '{', '.join(self._mandatory_filter_options)}"
@@ -75,12 +83,18 @@ class BaseController:
         ).json()
 
         adapter = TypeAdapter(List[self._model])
+        from pprint import pprint
+
+        print("*" * 100)
+        pprint(resp["d"]["results"][0])
         results = adapter.validate_python(resp["d"]["results"])
         p = 0
         if self._client.verbose:
             logger.info(f"Fetched page {p + 1}")
         while (next_url := resp["d"].get("__next")) is not None:
             p += 1
+            if max_pages != -1 and p + 1 > max_pages:
+                break
             if self._client.verbose:
                 logger.info(f"Fetching page {p + 1}")
             skip_token = self._client._get_skip_token(next_url)
