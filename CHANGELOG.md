@@ -4,6 +4,8 @@
 
 ### Fix
 
+- **models**: fixed bug in pascal alias generation, added custom alias generator. Fixed unit tests
+- **client.py**: implemented basics for rate limit handling
 - added custom eo unix ts validator and serializer and fixed bug in controller paging functionality
 - **models/account.py**: fixed some wrong attribute types in Account model
 - **auth.py**: method name and argument name clean up
