@@ -4,6 +4,7 @@
 
 ### Fix
 
+- **controllers**: added pandas output option
 - **models**: fixed bug in pascal alias generation, added custom alias generator. Fixed unit tests
 - **client.py**: implemented basics for rate limit handling
 - added custom eo unix ts validator and serializer and fixed bug in controller paging functionality
