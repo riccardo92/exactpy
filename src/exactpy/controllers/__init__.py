@@ -72,6 +72,7 @@ class BaseController:
 
     def all(
         self,
+        query_args: Dict[str, str] = {},
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
         max_pages: int = -1,
@@ -80,6 +81,8 @@ class BaseController:
         filters.
 
         Args:
+            query_args (Dict[str, str]): A dictionary of
+                query arg name and value key pairs to send to the endpoint. Defaults to {}.
             filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key, value pairs. Defaults to {}
             select (List[str], optional): Attributes to select (in Exact Online naming, so Pascal case). Defaults to [].
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
@@ -95,7 +98,10 @@ class BaseController:
 
         # Initial get request to get first page
         resp = self._client.get(
-            resource=self._resource, filters=filters, select=select
+            resource=self._resource,
+            query_args=query_args,
+            filters=filters,
+            select=select,
         ).json()
 
         # Convert to Pydantic
@@ -119,6 +125,7 @@ class BaseController:
             # Get page
             resp = self._client.get(
                 resource=self._resource,
+                query_args=query_args,
                 filters=filters,
                 select=select,
                 skip_token=skip_token,
