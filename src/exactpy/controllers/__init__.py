@@ -3,7 +3,6 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import TYPE_CHECKING, Dict, List, Type, Union
 
-import pandas as pd
 from loguru import logger
 from pydantic import BaseModel, TypeAdapter
 
@@ -82,18 +81,17 @@ class BaseController:
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
         max_pages: int = -1,
-        type: Type[OutputTypeEnum] = OutputTypeEnum.LIST,
-    ) -> Union[List[Type[ExactOnlineBaseModel]], pd.DataFrame]:
-        """_summary_
+    ) -> List[Type[ExactOnlineBaseModel]]:
+        """Retrieve a collection of model instances using given
+        filters.
 
         Args:
             filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key, value pairs. Defaults to {}
             select (List[str], optional): Attributes to select (in Exact Online naming, so Pascal case). Defaults to [].
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
-            type (Type[OutputTypeEnum]): The output type, list or pandas. Defaults to OutputTypeEnum.LIST.
 
         Returns:
-            Union[List[Type[ExactOnlineBaseModel]], pd.DataFrame]: List of instances of a subclass of ExactOnlineBaseModel or a Pandas dataframe.
+            List[Type[ExactOnlineBaseModel]]: List of instances of a subclass of ExactOnlineBaseModel.
         """
         if max_pages == 0:
             return []
@@ -140,10 +138,6 @@ class BaseController:
 
         if self._client.verbose:
             logger.info(f"Fetched a total of {len(results)} records.")
-
-        # Convert to Pandas if needed and return
-        if type == OutputTypeEnum.PANDAS:
-            return pd.DataFrame([r.model_dump() for r in results])
 
         # Or return a list
         return results
