@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from enum import StrEnum
 from typing import TYPE_CHECKING, Dict, List, Type, Union
 
 from loguru import logger
@@ -11,11 +10,6 @@ from exactpy.models import ExactOnlineBaseModel
 
 if TYPE_CHECKING:
     from exactpy.client import Client
-
-
-class OutputTypeEnum(StrEnum):
-    PANDAS = "pandas"
-    LIST = "list"
 
 
 class BaseController:
