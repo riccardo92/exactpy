@@ -14,9 +14,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pandas = [
-    "pandas>=2.3.3",
-]
+pandas = []
 
 [dependency-groups]
 pre-commit = [
