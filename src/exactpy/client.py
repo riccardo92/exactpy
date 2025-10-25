@@ -122,6 +122,22 @@ class Client:
         self.me = MeController(self)
 
     @staticmethod
+    def _parse_query_args(query_args: Dict[str, str]) -> str:
+        """Build string of query args key, value pairs.
+
+        Args:
+            query_args (Dict[str, str]): The query args key value pairs.
+
+        Returns:
+            str: The query arg string.
+        """
+        parsed_query_args = []
+        for key, val in query_args.items():
+            parsed_query_args.append(f"{key}={val}")
+
+        return "&".join(parsed_query_args)
+
+    @staticmethod
     def _parse_filters(
         filters: Dict[str, str], filter_operator: Type[FilterOperatorEnum]
     ) -> str:
@@ -204,6 +220,7 @@ class Client:
     def get(
         self,
         resource: str,
+        query_args: Dict[str, str] = {},
         filters: Dict[str, str] = {},
         filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
         select: List[str] = [],
@@ -214,6 +231,8 @@ class Client:
 
         Args:
             resource (str): The Exact Online API url resource to use.
+            query_args (Dict[str, str]): A dictionary of
+                query arg name and value key pairs to send to the endpoint. Defaults to {}.
             filters (Dict[str, str]): A dictionary of
                 filter name and filter value key pairs to send to the endpoint. Defaults to {}.
             filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or).
@@ -225,25 +244,33 @@ class Client:
         """
         if include_division:
             self._check_division()
+        division_part = ("", f"/{self.current_division}")[include_division]
 
         self._check_rate_limits()
 
         headers = self.auth_client._check_token_and_get_headers()
         headers.update(BASE_HEADERS)
 
+        parsed_query_args = Client._parse_query_args(query_args=query_args)
         parsed_filters = Client._parse_filters(
             filters=filters, filter_operator=filter_operator
         )
         parsed_select = ",".join(select)
 
-        division_part = ("", f"/{self.current_division}")[include_division]
         url = f"{self.endpoints_url}{division_part}/{resource}"
-        url += ("", f"?$filter={parsed_filters}")[len(filters) > 0]
 
-        join_str = ("?", "&")[len(filters) > 0]
+        existing_qargs = len(query_args) > 0
+        url += ("", f"?{parsed_query_args}")[existing_qargs]
+
+        join_str = ("?", "&")[existing_qargs]
+        url += ("", f"{join_str}$filter={parsed_filters}")[len(filters) > 0]
+
+        existing_qargs = existing_qargs | len(filters) > 0
+        join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$select={parsed_select}")[len(select) > 0]
 
-        join_str = ("?", "&")[len(filters) > 0 or len(select) > 0]
+        existing_qargs = existing_qargs | len(select) > 0
+        join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
         req = httpx.get(url=url, headers=headers)
