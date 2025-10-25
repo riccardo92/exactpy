@@ -1,9 +1,9 @@
 from exactpy.models import ExactOnlineBaseModel
-from exactpy.types import ExactUnixTimestamp
+from exactpy.types import ExactUnixTimestamp, Guid
 
 
 class Account(ExactOnlineBaseModel):
-    id: str
+    id: Guid
     accountant: str | None = None
     account_manager: str | None = None
     account_manager_full_name: str | None = None
