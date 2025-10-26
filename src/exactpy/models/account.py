@@ -1,4 +1,7 @@
+from typing import List
+
 from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.bank_account import BankAccount
 from exactpy.types import GUID, ExactUnixTimestamp
 
 
@@ -14,7 +17,7 @@ class Account(ExactOnlineBaseModel):
     address_line2: str | None = None
     address_line3: str | None = None
     automatic_process_proposed_entry: int | None = None
-    # bank_accounts: List[BankAccount] = []
+    bank_accounts: List[BankAccount] = []
     blocked: bool = False
     brin__: GUID
     bsn__: str | None = None

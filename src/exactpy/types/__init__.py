@@ -19,3 +19,13 @@ GUID = Annotated[str | None, BeforeValidator(guid_validator)]
 class BalanceTypeEnum(StrEnum):
     BALANCE_SHEET = "b"
     PROFIT_AND_LOSS = "w"
+
+
+class BankAcountTypeEnum(StrEnum):
+    ACCOUNT = "a"
+    EMPLOYEE = "e"
+    CASH = "k"
+    PAYMENT_SERVICE = "p"
+    BANK = "r"
+    STUDENT = "s"
+    UNKNOWN = "u"

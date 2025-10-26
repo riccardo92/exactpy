@@ -41,6 +41,3 @@ class Me(ExactOnlineBaseModel):
     thumbnail_picture_format: str | None = None
     title: str | None = None
     user_name: str | None = None
-
-
-print(Me.model_config)
