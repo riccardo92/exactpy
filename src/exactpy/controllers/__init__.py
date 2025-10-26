@@ -75,13 +75,18 @@ class BaseController:
             )
 
     def show(
-        self, primary_key_value: Union[str, int], primary_key: str = "ID"
+        self,
+        primary_key_value: Union[str, int],
+        primary_key: str = "ID",
+        expand: List[str] = [],
     ) -> Type[ExactOnlineBaseModel]:
         """Retrieve a single instance of a model by primary key.
 
         Args:
             primary_key_value (Union[str, int]): value of primary key field.
             primary_key (str, optional): name of primary key field. Defaults to "ID".
+            expand (List[str], optional): Attributes to expand (in Exact Online naming, so
+                Pascal case). Defaults to [].
 
         Returns:
             Type[ExactOnlineBaseModel]: In instance of a subclass of ExactOnlineBaseModel.
@@ -102,6 +107,7 @@ class BaseController:
         query_args: Dict[str, str] = {},
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
+        expand: List[str] = [],
         max_pages: int = -1,
     ) -> List[Type[ExactOnlineBaseModel]]:
         """Retrieve a collection of model instances using given
@@ -110,8 +116,12 @@ class BaseController:
         Args:
             query_args (Dict[str, str]): A dictionary of
                 query arg name and value key pairs to send to the endpoint. Defaults to {}.
-            filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key, value pairs. Defaults to {}
-            select (List[str], optional): Attributes to select (in Exact Online naming, so Pascal case). Defaults to [].
+            filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key,
+                value pairs. Defaults to {}
+            select (List[str], optional): Attributes to select (in Exact Online naming,
+                so Pascal case). Defaults to [].
+            expand (List[str], optional): Attributes to expand (in Exact Online naming,
+                so Pascal case). Defaults to [].
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
 
         Returns:
@@ -130,6 +140,7 @@ class BaseController:
             query_args=query_args,
             filters=filters,
             select=select,
+            expand=expand,
         ).json()
 
         # Convert to Pydantic
@@ -156,6 +167,7 @@ class BaseController:
                 query_args=query_args,
                 filters=filters,
                 select=select,
+                expand=expand,
                 skip_token=skip_token,
             ).json()
 
