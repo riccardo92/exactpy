@@ -98,6 +98,7 @@ class BaseController:
                 resource=self._resource,
                 primary_key=primary_key,
                 primary_key_value=primary_key_value,
+                expand=expand,
             ).json()["d"]["results"][0],
             extra="ignore",
         )
