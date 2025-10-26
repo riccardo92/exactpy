@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 class BaseController:
     _resource: str
-    _mandatory_query_arg_options: List[str]
-    _mandatory_filter_options: List[str]
+    _mandatory_query_arg_options: List[str] = []
+    _mandatory_filter_options: List[str] = []
     _model: Type[BaseModel]
 
     def __init__(

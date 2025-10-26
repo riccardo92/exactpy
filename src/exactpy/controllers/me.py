@@ -4,6 +4,7 @@ from exactpy.models.me import Me
 
 class MeController(BaseController):
     _resource = "current/Me"
+    _mandatory_query_arg_options = []
     _mandatory_filter_options = []
     _model = Me
 
