@@ -224,6 +224,7 @@ class Client:
         filters: Dict[str, str] = {},
         filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
         select: List[str] = [],
+        expand: List[str] = [],
         include_division: bool = True,
         skip_token: str | None = None,
     ):
@@ -237,6 +238,7 @@ class Client:
                 filter name and filter value key pairs to send to the endpoint. Defaults to {}.
             filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or).
             select (List[str]): Attributes to select. Defaults to [].
+            expand (List[str]): Attributes to expand. Defaults to [].
             include_division (bool): Whether to include the current division in the url. Defaults to True.
             skip_token: (str, Optional): A skiptoken query arg, used for paging in the Exact Online rest api. Defaults to None.
         Returns:
@@ -256,6 +258,7 @@ class Client:
             filters=filters, filter_operator=filter_operator
         )
         parsed_select = ",".join(select)
+        parsed_expand = ",".join(expand)
 
         url = f"{self.endpoints_url}{division_part}/{resource}"
 
@@ -271,6 +274,10 @@ class Client:
 
         existing_qargs = existing_qargs | len(select) > 0
         join_str = ("?", "&")[existing_qargs]
+        url += ("", f"{join_str}$select={parsed_expand}")[len(expand) > 0]
+
+        existing_qargs = existing_qargs | len(expand) > 0
+        join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
         req = httpx.get(url=url, headers=headers)
@@ -285,6 +292,7 @@ class Client:
         primary_key_value: str,
         primary_key: str = "ID",
         select: List[str] = [],
+        expand: List[str] = [],
         include_division: bool = True,
     ) -> httpx.Response:
         """Calls a get endpoint
@@ -295,6 +303,7 @@ class Client:
             primary_key_value (str): Value of the primary key field
             primary_key (str): Name of the primary field. Defaults to "ID".
             select (List[str]): Attributes to select. Defaults to [].
+            expand (List[str]): Attributes to expand. Defaults to [].
             include_division (bool): Whether to include the current division in the url. Defaults to True.
         Returns:
             httpx.Response: the API call httpx response object.
@@ -307,11 +316,13 @@ class Client:
         headers = self.auth_client._check_token_and_get_headers()
         headers.update(BASE_HEADERS)
         parsed_select = ",".join(select)
+        parsed_expand = ",".join(expand)
 
         division_part = ("", f"/{self.current_division}")[include_division]
         url = f"{self.endpoints_url}{division_part}/{resource}"
         url += f"?$filter={primary_key} eq guid '{primary_key_value}'"
         url += ("", f"&$select={parsed_select}")[len(select) > 0]
+        url += ("", f"&$expand={parsed_expand}")[len(expand) > 0]
 
         req = httpx.get(url=url, headers=headers)
         req.raise_for_status()
