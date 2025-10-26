@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Dict, List, Type, Union
 from loguru import logger
 from pydantic import BaseModel, TypeAdapter
 
-from exactpy.exceptions import NoFilterSetException
+from exactpy.exceptions import InsufficientQueryArgsSet, NoFiltersSetException
 from exactpy.models import ExactOnlineBaseModel
 
 if TYPE_CHECKING:
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 class BaseController:
     _resource: str
+    _mandatory_query_arg_options: List[str]
     _mandatory_filter_options: List[str]
     _model: Type[BaseModel]
 
@@ -24,6 +25,32 @@ class BaseController:
         self._client = client
         self._list_adapter = TypeAdapter(List[self._model])
 
+    def _check_query_args(self, query_args: Dict[str, Union[str, int, float]] = {}):
+        """Checks whether (the right) query args have been set in case
+        they are mandatory.
+
+        Args:
+            query_args (Dict[str, Union[str, int, float]], optional):
+                Dict of query arg key, value pairs. Defaults to {}
+
+        Raises:
+            NoQueryArgsSetException: Raised when no filters are set while
+                there are mandatory filters.
+        """
+        query_arg_options = ", ".join(self._mandatory_query_arg_options)
+        if len(self._mandatory_filter_options) > 0 and len(query_args) == 0:
+            raise InsufficientQueryArgsSet(
+                f"No query args set. This model requires mandatory query args. Choices are '{query_arg_options}'"
+            )
+        elif (
+            len(self._mandatory_query_arg_options) > 0
+            and set(self._mandatory_query_arg_options).intersection(query_args.keys())
+            == {}
+        ):
+            raise InsufficientQueryArgsSet(
+                f"Not all mandatory query args set. Choices are '{query_arg_options}'"
+            )
+
     def _check_filters(self, filters: Dict[str, Union[str, int, float]] = {}):
         """Checks whether (the right) filters have been set in case
         they are mandatory.
@@ -32,18 +59,18 @@ class BaseController:
             filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key, value pairs. Defaults to {}
 
         Raises:
-            NoFilterSetException: _description_
+            NoFiltersSetException: Raised when no filters are set while there are mandatory filters.
         """
         filter_options = ", ".join(self._mandatory_filter_options)
         if len(self._mandatory_filter_options) > 0 and len(filters) == 0:
-            raise NoFilterSetException(
+            raise NoFiltersSetException(
                 f"This model requires a mandatory filter. Choices are '{filter_options}'"
             )
         elif (
             len(self._mandatory_filter_options) > 0
             and set(self._mandatory_filter_options).intersection(filters.keys()) == {}
         ):
-            raise NoFilterSetException(
+            raise NoFiltersSetException(
                 f"No valid mandatory filter set. Choices are '{filter_options}'"
             )
 
@@ -93,8 +120,9 @@ class BaseController:
         if max_pages == 0:
             return []
 
-        # Check mandatory filters
+        # Check mandatory filters and query args
         self._check_filters(filters=filters)
+        self._check_query_args(query_args=query_args)
 
         # Initial get request to get first page
         resp = self._client.get(
