@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import StrEnum
 from typing import Annotated
 
 from pydantic import BeforeValidator, PlainSerializer
@@ -12,4 +13,9 @@ ExactUnixTimestamp = Annotated[
     PlainSerializer(exact_unix_transformer),
 ]
 
-Guid = Annotated[str | None, BeforeValidator(guid_validator)]
+GUID = Annotated[str | None, BeforeValidator(guid_validator)]
+
+
+class BalanceTypeEnum(StrEnum):
+    BALANCE_SHEET = "b"
+    PROFIT_AND_LOSS = "w"

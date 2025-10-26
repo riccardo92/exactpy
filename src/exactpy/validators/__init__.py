@@ -25,4 +25,4 @@ def guid_validator(value: Any):
         value,
     ):
         return value
-    raise ValidationError("Input is not a string or is not a valid Guid.")
+    raise ValidationError("Input is not a string or is not a valid GUID.")
