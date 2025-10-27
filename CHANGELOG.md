@@ -4,6 +4,35 @@
 
 ### Fix
 
+- **models/base.py**: enum value serializaton
+- refactored model and controller imports
+- added journal model and controller
+- **types**: added journal type and payment service provider type enums
+- **models/gl_account.py**: fixed property naming issue
+- **controllers**: added default expand arg as controller property
+- **validators**: added new validator to deal with expanded nested results
+- **types**: fixed wrongly defined enums
+- **client**: added endpoint properties for most new controllers
+- **models**: added deductibility percentage model and added ref to glaccount model
+- **controllers**: added GLAccount controller
+- **models**: added GLAccount model properties
+- **types**: added CostCenter and CostUnit enums
+- **types**: added BalanceSide enum class
+- **types**: added GLAccountType enum class
+- **controllers**: added expand arg ref to show method
+- **client**: added support for expand query arg in client
+- **controllers**: added support for expand query arg in controllers
+- **models**: added BankAccount model
+- **models**: fixed ReportingBalanceByClassification controller
+- **models**: added new GLAccountClassificationMappings model and controller
+- **account.py**: small fixes in property types and names
+- **types**: added new enum type for balance type
+- **models**: added new ReportingBalanceByClassification model
+- **controllers**: added support for mandatory query args in controller
+- **types**: added explicit guid type
+- **controllers**: added support for regular query args in controller's all()
+- **client.py**: added support for regular query args in client get
+- **controllers**: removed obsolete enum class
 - **controllers**: removed pandas support
 - **controllers**: added pandas output option
 - **models**: fixed bug in pascal alias generation, added custom alias generator. Fixed unit tests
