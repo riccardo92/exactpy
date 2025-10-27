@@ -1,65 +1,48 @@
-from typing import Annotated, List
-
-from pydantic import BeforeValidator
-
 from exactpy.models import ExactOnlineBaseModel
-from exactpy.models.deductibility_percentage import DeductibilityPercentage
 from exactpy.types import (
     GUID,
-    BalanceSideEnum,
-    BalanceTypeEnum,
-    CostCenterEnum,
-    CostUnitEnum,
     ExactUnixTimestamp,
     GLAccountTypeEnum,
-    VATSystemEnum,
+    JournalTypeEnum,
+    PaymentServiceProviderTypeEnum,
 )
-from exactpy.validators import nested_results_validator
 
 
-class GLAccount(ExactOnlineBaseModel):
+class JournalModel(ExactOnlineBaseModel):
     id: GUID
-    allow_costs_in_sales: int | None = None
-    assimilated_vat__box: int | None = None
-    balance_side: BalanceSideEnum
-    balance_type: BalanceTypeEnum
-    belcotax_type: int | None = None
+    allow_variable_currency: bool | None = None
+    allow_variable_exchange_rate: bool | None = None
+    allow_vat__: bool | None = None
+    auto_save: bool | None = None
+    bank: GUID
+    bank_account_bic_code: str | None = None
+    bank_account_country: str | None = None
+    bank_account_description: str | None = None
+    bank_account_iban: str | None = None
+    bank_account_id: GUID
+    bank_account_including_mask: str | None = None
+    bank_account_use_sepa: bool | None = None
+    bank_account_use_sepa_direct_debit: bool | None = None
+    bank_name: str | None = None
     code: str | None = None
-    compress: bool | None = None
-    costcenter: str | None = None
-    costcenter_description: str | None = None
-    costunit: str | None = None
-    costunit_description: str | None = None
     created: ExactUnixTimestamp
     creator: GUID
     creator_full_name: str | None = None
+    currency: str | None = None
+    currency_description: str | None = None
     custom_field: str | None = None
-    deductibility_percentages: Annotated[
-        List[DeductibilityPercentage], BeforeValidator(nested_results_validator)
-    ] = []
     description: str | None = None
     division: int | None = None
-    exclude_vat__listing: int | None = None
-    expense_non_deductible_percentage: float | None = None
+    gl__account: GUID
+    gl__account_code: str | None = None
+    gl__account_description: str | None = None
+    gl__account_type: GLAccountTypeEnum
     is_blocked: bool | None = None
-    matching: bool | None = None
     modified: ExactUnixTimestamp
     modifier: GUID
     modifier_full_name: str | None = None
-    private_gl__account: GUID
-    private_percentage: float | None = None
-    reporting_code: str | None = None
-    revalue_currency: bool | None = None
-    search_code: str | None = None
-    type: GLAccountTypeEnum | None
-    type_description: str | None = None
-    use_costcenter: CostCenterEnum
-    use_costunit: CostUnitEnum
-    vat__code: str | None = None
-    vat__description: str | None = None
-    vatgl__account_type: str | None = None
-    vat__non_deductible_gl__account: GUID
-    vat__non_deductible_percentage: float | None = None
-    vat__system: VATSystemEnum | None
-    year_end_cost_gl__account: GUID
-    year_end_reflection_gl__account: GUID
+    payment_in_transit_account: GUID
+    payment_service_account_identifier: str | None = None
+    payment_service_provider: PaymentServiceProviderTypeEnum | None = None
+    payment_service_provider_name: str | None = None
+    type: JournalTypeEnum
