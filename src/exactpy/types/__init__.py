@@ -26,6 +26,18 @@ class BalanceSideEnum(StrEnum):
     DEBIT = "d"
 
 
+class CostCenterEnum(Enum):
+    OPTIONAL: 0
+    MANDATORY: 1
+    NO: 2
+
+
+class CostUnitEnum(Enum):
+    OPTIONAL: 0
+    MANDATORY: 1
+    NO: 2
+
+
 class BankAcountTypeEnum(StrEnum):
     ACCOUNT = "a"
     EMPLOYEE = "e"
