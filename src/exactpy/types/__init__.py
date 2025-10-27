@@ -91,3 +91,20 @@ class GLAccountTypeEnum(IntEnum):
     YEAR_END_REFLECTION = 300
     INDIRECT_YEAR_END_COSTING = 301
     DIRECT_YEAR_END_COSTING = 302
+
+
+class PaymentServiceProviderTypeEnum(IntEnum):
+    ADYEN: 1
+    PAYPAL: 2
+    STRIPE: 3
+
+
+class JournalTypeEnum(IntEnum):
+    CASH: 10
+    BANK: 12
+    PAYMENT_SERVICE: 16
+    SALES: 20
+    RETURN_INVOICE: 21
+    PURCHASE: 22
+    RECEIVED_RETURN_INVOICE: 23
+    GENERAL_JOURNAL: 90
