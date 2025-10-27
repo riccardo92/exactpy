@@ -288,7 +288,7 @@ class Client:
 
         existing_qargs = existing_qargs | len(select) > 0
         join_str = ("?", "&")[existing_qargs]
-        url += ("", f"{join_str}$select={parsed_expand}")[len(expand) > 0]
+        url += ("", f"{join_str}$expand={parsed_expand}")[len(expand) > 0]
 
         existing_qargs = existing_qargs | len(expand) > 0
         join_str = ("?", "&")[existing_qargs]

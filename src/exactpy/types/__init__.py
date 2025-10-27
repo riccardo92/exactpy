@@ -1,5 +1,5 @@
 from datetime import datetime
-from enum import Enum, StrEnum
+from enum import IntEnum, StrEnum
 from typing import Annotated
 
 from pydantic import BeforeValidator, PlainSerializer
@@ -17,30 +17,30 @@ GUID = Annotated[str | None, BeforeValidator(guid_validator)]
 
 
 class BalanceTypeEnum(StrEnum):
-    BALANCE_SHEET = "b"
-    PROFIT_AND_LOSS = "w"
+    BALANCE_SHEET = "B"
+    PROFIT_AND_LOSS = "W"
 
 
 class BalanceSideEnum(StrEnum):
-    CREDIT = "c"
-    DEBIT = "d"
+    CREDIT = "C"
+    DEBIT = "D"
 
 
-class CostCenterEnum(Enum):
-    OPTIONAL: 0
-    MANDATORY: 1
-    NO: 2
+class CostCenterEnum(IntEnum):
+    OPTIONAL = 0
+    MANDATORY = 1
+    NO = 2
 
 
-class CostUnitEnum(Enum):
-    OPTIONAL: 0
-    MANDATORY: 1
-    NO: 2
+class CostUnitEnum(IntEnum):
+    OPTIONAL = 0
+    MANDATORY = 1
+    NO = 2
 
 
 class VATSystemEnum(StrEnum):
-    INVOICE = "i"
-    CASH = "c"
+    INVOICE = "I"
+    CASH = "C"
 
 
 class BankAcountTypeEnum(StrEnum):
@@ -53,7 +53,7 @@ class BankAcountTypeEnum(StrEnum):
     UNKNOWN = "u"
 
 
-class GLAccountTypeEnum(Enum):
+class GLAccountTypeEnum(IntEnum):
     CASH = 10
     BANK = 12
     CREDIT_CARD = 14

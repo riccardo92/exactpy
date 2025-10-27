@@ -1,7 +1,4 @@
-from typing import List
-
 from exactpy.models import ExactOnlineBaseModel
-from exactpy.models.deductibility_percentage import DeductibilityPercentage
 from exactpy.types import (
     GUID,
     BalanceSideEnum,
@@ -31,7 +28,7 @@ class GLAccount(ExactOnlineBaseModel):
     creator: GUID
     creator_full_name: str | None = None
     custom_field: str | None = None
-    deductibility_percentages: List[DeductibilityPercentage]
+    # deductibility_percentages: List[DeductibilityPercentage] = []
     description: str | None = None
     division: int | None = None
     exclude_vat__listing: int | None = None
@@ -46,15 +43,15 @@ class GLAccount(ExactOnlineBaseModel):
     reporting_code: str | None = None
     revalue_currency: bool | None = None
     search_code: str | None = None
-    type: GLAccountTypeEnum
+    type: GLAccountTypeEnum | None
     type_description: str | None = None
     use_costcenter: CostCenterEnum
     use_costunit: CostUnitEnum
     vat__code: str | None = None
     vat__description: str | None = None
     vatgl__account_type: str | None = None
-    vat__non_deductible_gl_account: GUID
+    # vat__non_deductible_gl_account: GUID
     vat__non_deductible_percentage: float | None = None
-    vat__system: VATSystemEnum
-    year_end_cost_gl_account: GUID
-    year_end_reflection_gl_account: GUID
+    vat__system: VATSystemEnum | None
+    # year_end_cost_gl_account: GUID
+    # year_end_reflection_gl_account: GUID
