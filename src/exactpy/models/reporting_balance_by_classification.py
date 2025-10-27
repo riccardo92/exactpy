@@ -1,8 +1,8 @@
-from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.types import GUID, BalanceTypeEnum
 
 
-class ReportingBalanceByClassification(ExactOnlineBaseModel):
+class ReportingBalanceByClassificationModel(ExactOnlineBaseModel):
     id: GUID
     amount: float | None = None
     amount_credit: float | None = None

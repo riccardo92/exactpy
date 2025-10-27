@@ -1,8 +1,8 @@
-from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.types import GUID
 
 
-class GLAccountClassificationMappings(ExactOnlineBaseModel):
+class GLAccountClassificationMappingsModel(ExactOnlineBaseModel):
     id: GUID
     classification: GUID
     classification_code: str | None = None

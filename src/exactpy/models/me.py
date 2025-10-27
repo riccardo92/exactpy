@@ -1,7 +1,7 @@
-from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.base import ExactOnlineBaseModel
 
 
-class Me(ExactOnlineBaseModel):
+class MeModel(ExactOnlineBaseModel):
     user_id: str | None = None
     accounting_division: int | None = None
     current_division: int | None = None

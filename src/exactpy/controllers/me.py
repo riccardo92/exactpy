@@ -1,12 +1,12 @@
-from exactpy.controllers import BaseController
-from exactpy.models.me import Me
+from exactpy.controllers.base import BaseController
+from exactpy.models import MeModel
 
 
 class MeController(BaseController):
     _resource = "current/Me"
     _mandatory_query_arg_options = []
     _mandatory_filter_options = []
-    _model = Me
+    _model = MeModel
 
     def all(self):
         raise NotImplementedError("Method not implemented in this controller.")

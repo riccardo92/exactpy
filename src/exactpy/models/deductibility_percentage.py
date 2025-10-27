@@ -1,11 +1,11 @@
-from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.types import (
     GUID,
     ExactUnixTimestamp,
 )
 
 
-class DeductibilityPercentage(ExactOnlineBaseModel):
+class DeductibilityPercentageModel(ExactOnlineBaseModel):
     id: GUID
     created: ExactUnixTimestamp
     creator: GUID

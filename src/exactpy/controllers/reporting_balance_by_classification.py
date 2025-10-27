@@ -1,9 +1,11 @@
-from exactpy.controllers import BaseController
-from exactpy.models.account import Account
+from exactpy.controllers.base import BaseController
+from exactpy.models import (
+    ReportingBalanceByClassificationModel,
+)
 
 
 class ReportingBalanceByClassificationController(BaseController):
     _resource = "read/financial/ReportingBalanceByClassification"
     _mandatory_query_arg_options = ["gl_scheme", "reporting_year"]
     _mandatory_filter_options = []
-    _model = Account
+    _model = ReportingBalanceByClassificationModel

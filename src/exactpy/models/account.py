@@ -1,8 +1,8 @@
-from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.types import GUID, ExactUnixTimestamp
 
 
-class Account(ExactOnlineBaseModel):
+class AccountModel(ExactOnlineBaseModel):
     id: GUID
     accountant: GUID
     account_manager: GUID
@@ -14,7 +14,7 @@ class Account(ExactOnlineBaseModel):
     address_line2: str | None = None
     address_line3: str | None = None
     automatic_process_proposed_entry: int | None = None
-    # bank_accounts: List[BankAccount] = []
+    # bank_accounts: List[BankAccountModel] = []
     blocked: bool = False
     brin__: GUID
     bsn__: str | None = None

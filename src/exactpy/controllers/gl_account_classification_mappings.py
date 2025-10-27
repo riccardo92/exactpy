@@ -1,6 +1,6 @@
-from exactpy.controllers import BaseController
-from exactpy.models.gl_account_classification_mappings import (
-    GLAccountClassificationMappings,
+from exactpy.controllers.base import BaseController
+from exactpy.models import (
+    GLAccountClassificationMappingsModel,
 )
 
 
@@ -8,4 +8,4 @@ class GLAccountClassificationMappingsController(BaseController):
     _resource = "financial/GLAccountClassificationMappings"
     _mandatory_query_arg_options = []
     _mandatory_filter_options = []
-    _model = GLAccountClassificationMappings
+    _model = GLAccountClassificationMappingsModel

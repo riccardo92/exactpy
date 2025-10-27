@@ -1,8 +1,8 @@
-from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.types import GUID, BankAcountTypeEnum, ExactUnixTimestamp
 
 
-class BankAccount(ExactOnlineBaseModel):
+class BankAccountModel(ExactOnlineBaseModel):
     id: GUID
     account: GUID
     account_name: str | None = None

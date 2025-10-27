@@ -9,13 +9,11 @@ import httpx
 from loguru import logger
 
 from exactpy.auth import Auth
-from exactpy.controllers.account import AccountController
-from exactpy.controllers.gl_account import GLAccountController
-from exactpy.controllers.gl_account_classification_mappings import (
+from exactpy.controllers import (
+    AccountController,
     GLAccountClassificationMappingsController,
-)
-from exactpy.controllers.me import MeController
-from exactpy.controllers.reporting_balance_by_classification import (
+    GLAccountController,
+    MeController,
     ReportingBalanceByClassificationController,
 )
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
