@@ -17,6 +17,7 @@ class BaseController:
     _mandatory_query_arg_options: List[str] = []
     _mandatory_filter_options: List[str] = []
     _model: Type[BaseModel]
+    _expand: List[str] = []
 
     def __init__(
         self,
@@ -92,6 +93,10 @@ class BaseController:
             Type[ExactOnlineBaseModel]: In instance of a subclass of ExactOnlineBaseModel.
         """
 
+        # Set expand attributes if they aren't set
+        if expand == []:
+            expand = self._expand
+
         # Retrieve single instance and convert to pydantic
         return self._model.model_validate(
             json_data=self._client.get(
@@ -134,6 +139,10 @@ class BaseController:
         # Check mandatory filters and query args
         self._check_filters(filters=filters)
         self._check_query_args(query_args=query_args)
+
+        # Set expand attributes if they aren't set
+        if expand == []:
+            expand = self._expand
 
         # Initial get request to get first page
         resp = self._client.get(
