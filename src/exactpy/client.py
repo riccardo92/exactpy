@@ -10,7 +10,14 @@ from loguru import logger
 
 from exactpy.auth import Auth
 from exactpy.controllers.account import AccountController
+from exactpy.controllers.gl_account import GLAccountController
+from exactpy.controllers.gl_account_classification_mappings import (
+    GLAccountClassificationMappingsController,
+)
 from exactpy.controllers.me import MeController
+from exactpy.controllers.reporting_balance_by_classification import (
+    ReportingBalanceByClassificationController,
+)
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
@@ -120,6 +127,13 @@ class Client:
         # Set up endpoints
         self.accounts = AccountController(self)
         self.me = MeController(self)
+        self.gl_accounts = GLAccountController(self)
+        self.reporting_balances_by_classification = (
+            ReportingBalanceByClassificationController(self)
+        )
+        self.gl_accounts_classification_mappings = (
+            GLAccountClassificationMappingsController(self)
+        )
 
     @staticmethod
     def _parse_query_args(query_args: Dict[str, str]) -> str:
