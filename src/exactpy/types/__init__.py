@@ -38,6 +38,11 @@ class CostUnitEnum(Enum):
     NO: 2
 
 
+class VATSystemEnum(StrEnum):
+    INVOICE = "i"
+    CASH = "c"
+
+
 class BankAcountTypeEnum(StrEnum):
     ACCOUNT = "a"
     EMPLOYEE = "e"
