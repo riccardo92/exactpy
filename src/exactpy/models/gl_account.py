@@ -1,4 +1,7 @@
+from typing import List
+
 from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.deductibility_percentage import DeductibilityPercentage
 from exactpy.types import (
     GUID,
     BalanceSideEnum,
@@ -28,8 +31,7 @@ class GLAccount(ExactOnlineBaseModel):
     creator: GUID
     creator_full_name: str | None = None
     custom_field: str | None = None
-    # TODO (nested model)
-    # deductibility_percentages
+    deductibility_percentages: List[DeductibilityPercentage]
     description: str | None = None
     division: int | None = None
     exclude_vat__listing: int | None = None
