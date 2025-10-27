@@ -21,6 +21,11 @@ class BalanceTypeEnum(StrEnum):
     PROFIT_AND_LOSS = "w"
 
 
+class BalanceSideEnum(StrEnum):
+    CREDIT = "c"
+    DEBIT = "d"
+
+
 class BankAcountTypeEnum(StrEnum):
     ACCOUNT = "a"
     EMPLOYEE = "e"
