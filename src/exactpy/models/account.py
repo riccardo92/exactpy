@@ -1,36 +1,36 @@
-from exactpy.models import ExactOnlineBaseModel
-from exactpy.types import ExactUnixTimestamp
+from exactpy.models.base import ExactOnlineBaseModel
+from exactpy.types import GUID, ExactUnixTimestamp
 
 
-class Account(ExactOnlineBaseModel):
-    id: str
-    accountant: str | None = None
-    account_manager: str | None = None
+class AccountModel(ExactOnlineBaseModel):
+    id: GUID
+    accountant: GUID
+    account_manager: GUID
     account_manager_full_name: str | None = None
     account_manager_hid: int | None = None
-    activity_sector: str | None = None
-    activity_sub_sector: str | None = None
+    activity_sector: GUID
+    activity_sub_sector: GUID
     address_line1: str | None = None
     address_line2: str | None = None
     address_line3: str | None = None
     automatic_process_proposed_entry: int | None = None
-    # bank_accounts: List[BankAccount] = []
+    # bank_accounts: List[BankAccountModel] = []
     blocked: bool = False
-    brin: str | None = None
-    bsn: str | None = None
-    business_type: str | None = None
+    brin__: GUID
+    bsn__: str | None = None
+    business_type: GUID
     can_drop_ship: bool = False
     chamber_of_commerce: str | None = None
     city: str | None = None
-    classification: str | None = None
-    classification1: str | None = None
-    classification2: str | None = None
-    classification3: str | None = None
-    classification4: str | None = None
-    classification5: str | None = None
-    classification6: str | None = None
-    classification7: str | None = None
-    classification8: str | None = None
+    classification: GUID
+    classification1: GUID
+    classification2: GUID
+    classification3: GUID
+    classification4: GUID
+    classification5: GUID
+    classification6: GUID
+    classification7: GUID
+    classification8: GUID
     classification_description: str | None = None
     code: str | None = None
     code_at_supplier: str | None = None
@@ -43,7 +43,7 @@ class Account(ExactOnlineBaseModel):
     country: str | None = None
     country_name: str | None = None
     created: ExactUnixTimestamp
-    creator: str | None = None
+    creator: GUID
     creator_full_name: str | None = None
     credit_line_purchase: float | None = None
     credit_line_sales: float | None = None
@@ -56,7 +56,7 @@ class Account(ExactOnlineBaseModel):
     discount_purchase: float | None = None
     discount_sales: float | None = None
     division: int | None = None
-    document: str | None = None
+    document: GUID
     duns_number: str | None = None
     email: str | None = None
     enable_sales_payment_link: bool | None = None
@@ -64,10 +64,10 @@ class Account(ExactOnlineBaseModel):
     eori__number: str | None = None
     established_date: ExactUnixTimestamp
     fax: str | None = None
-    gl__account_purchase: str | None = None
-    gl__account_sales: str | None = None
-    glap__: str | None = None
-    glar__: str | None = None
+    gl__account_purchase: GUID
+    gl__account_sales: GUID
+    glap__: GUID
+    glar__: GUID
     gln_number: str | None = None
     has_withholding_tax_sales: bool | None = None
     ignore_datev_warning_message: bool = False
@@ -83,7 +83,7 @@ class Account(ExactOnlineBaseModel):
     intra_stat_transaction_a: str | None = None
     intra_stat_transaction_b: str | None = None
     intra_stat_transport_method: str | None = None
-    invoice_account: str | None = None
+    invoice_account: GUID
     invoice_account_code: str | None = None
     invoice_account_name: str | None = None
     invoice_attachment_type: int
@@ -104,20 +104,20 @@ class Account(ExactOnlineBaseModel):
     language: str | None = None
     language_description: str | None = None
     latitude: float | None = None
-    lead_purpose: str | None = None
-    lead_source: str | None = None
+    lead_purpose: GUID
+    lead_source: GUID
     logo: bytes | None = None
     logo_file_name: str | None = None
     logo_thumbnail_url: str | None = None
     logo_url: str | None = None
     longitude: float | None = None
-    main_contact: str | None = None
+    main_contact: GUID
     modified: ExactUnixTimestamp
-    modifier: str | None = None
+    modifier: GUID
     modifier_full_name: str | None = None
     name: str | None = None
     oin__number: str | None = None
-    parent: str | None = None
+    parent: GUID
     pay_as_you_earn: str | None = None
     payment_condition_purchase: str | None = None
     payment_condition_purchase_description: str | None = None
@@ -128,7 +128,7 @@ class Account(ExactOnlineBaseModel):
     phone: str | None = None
     phone_extension: str | None = None
     postcode: str | None = None
-    price_list: str | None = None
+    price_list: GUID
     purchase_currency: str | None = None
     purchase_currency_description: str | None = None
     purchase_lead_days: int
@@ -136,13 +136,13 @@ class Account(ExactOnlineBaseModel):
     purchase_vat_code_description: str | None = None
     recepient_of_commissions: bool = False
     remarks: str | None = None
-    reseller: str | None = None
+    reseller: GUID
     reseller_code: str | None = None
     reseller_name: str | None = None
     rsin__: str | None = None
     sales_currency: str | None = None
     sales_currency_description: str | None = None
-    sales_tax_schedule: str | None = None
+    sales_tax_schedule: GUID
     sales_tax_schedule_code: str | None = None
     sales_tax_schedule_description: str | None = None
     sales_vat_code: str | None = None
@@ -151,7 +151,7 @@ class Account(ExactOnlineBaseModel):
     security_level: int
     separate_inv_per_subscription: int | None = None
     shipping_lead_days: int
-    shipping_method: str | None = None
+    shipping_method: GUID
     show_remark_for_sales: bool | None = None
     start_date: ExactUnixTimestamp
     state: str | None = None

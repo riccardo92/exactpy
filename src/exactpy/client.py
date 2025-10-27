@@ -9,8 +9,13 @@ import httpx
 from loguru import logger
 
 from exactpy.auth import Auth
-from exactpy.controllers.account import AccountController
-from exactpy.controllers.me import MeController
+from exactpy.controllers import (
+    AccountController,
+    GLAccountClassificationMappingsController,
+    GLAccountController,
+    MeController,
+    ReportingBalanceByClassificationController,
+)
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
@@ -120,6 +125,29 @@ class Client:
         # Set up endpoints
         self.accounts = AccountController(self)
         self.me = MeController(self)
+        self.gl_accounts = GLAccountController(self)
+        self.reporting_balances_by_classification = (
+            ReportingBalanceByClassificationController(self)
+        )
+        self.gl_accounts_classification_mappings = (
+            GLAccountClassificationMappingsController(self)
+        )
+
+    @staticmethod
+    def _parse_query_args(query_args: Dict[str, str]) -> str:
+        """Build string of query args key, value pairs.
+
+        Args:
+            query_args (Dict[str, str]): The query args key value pairs.
+
+        Returns:
+            str: The query arg string.
+        """
+        parsed_query_args = []
+        for key, val in query_args.items():
+            parsed_query_args.append(f"{key}={val}")
+
+        return "&".join(parsed_query_args)
 
     @staticmethod
     def _parse_filters(
@@ -204,9 +232,11 @@ class Client:
     def get(
         self,
         resource: str,
+        query_args: Dict[str, str] = {},
         filters: Dict[str, str] = {},
         filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
         select: List[str] = [],
+        expand: List[str] = [],
         include_division: bool = True,
         skip_token: str | None = None,
     ):
@@ -214,10 +244,13 @@ class Client:
 
         Args:
             resource (str): The Exact Online API url resource to use.
+            query_args (Dict[str, str]): A dictionary of
+                query arg name and value key pairs to send to the endpoint. Defaults to {}.
             filters (Dict[str, str]): A dictionary of
                 filter name and filter value key pairs to send to the endpoint. Defaults to {}.
             filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or).
             select (List[str]): Attributes to select. Defaults to [].
+            expand (List[str]): Attributes to expand. Defaults to [].
             include_division (bool): Whether to include the current division in the url. Defaults to True.
             skip_token: (str, Optional): A skiptoken query arg, used for paging in the Exact Online rest api. Defaults to None.
         Returns:
@@ -225,25 +258,38 @@ class Client:
         """
         if include_division:
             self._check_division()
+        division_part = ("", f"/{self.current_division}")[include_division]
 
         self._check_rate_limits()
 
         headers = self.auth_client._check_token_and_get_headers()
         headers.update(BASE_HEADERS)
 
+        parsed_query_args = Client._parse_query_args(query_args=query_args)
         parsed_filters = Client._parse_filters(
             filters=filters, filter_operator=filter_operator
         )
         parsed_select = ",".join(select)
+        parsed_expand = ",".join(expand)
 
-        division_part = ("", f"/{self.current_division}")[include_division]
         url = f"{self.endpoints_url}{division_part}/{resource}"
-        url += ("", f"?$filter={parsed_filters}")[len(filters) > 0]
 
-        join_str = ("?", "&")[len(filters) > 0]
+        existing_qargs = len(query_args) > 0
+        url += ("", f"?{parsed_query_args}")[existing_qargs]
+
+        join_str = ("?", "&")[existing_qargs]
+        url += ("", f"{join_str}$filter={parsed_filters}")[len(filters) > 0]
+
+        existing_qargs = existing_qargs | len(filters) > 0
+        join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$select={parsed_select}")[len(select) > 0]
 
-        join_str = ("?", "&")[len(filters) > 0 or len(select) > 0]
+        existing_qargs = existing_qargs | len(select) > 0
+        join_str = ("?", "&")[existing_qargs]
+        url += ("", f"{join_str}$expand={parsed_expand}")[len(expand) > 0]
+
+        existing_qargs = existing_qargs | len(expand) > 0
+        join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
         req = httpx.get(url=url, headers=headers)
@@ -258,6 +304,7 @@ class Client:
         primary_key_value: str,
         primary_key: str = "ID",
         select: List[str] = [],
+        expand: List[str] = [],
         include_division: bool = True,
     ) -> httpx.Response:
         """Calls a get endpoint
@@ -268,6 +315,7 @@ class Client:
             primary_key_value (str): Value of the primary key field
             primary_key (str): Name of the primary field. Defaults to "ID".
             select (List[str]): Attributes to select. Defaults to [].
+            expand (List[str]): Attributes to expand. Defaults to [].
             include_division (bool): Whether to include the current division in the url. Defaults to True.
         Returns:
             httpx.Response: the API call httpx response object.
@@ -280,11 +328,13 @@ class Client:
         headers = self.auth_client._check_token_and_get_headers()
         headers.update(BASE_HEADERS)
         parsed_select = ",".join(select)
+        parsed_expand = ",".join(expand)
 
         division_part = ("", f"/{self.current_division}")[include_division]
         url = f"{self.endpoints_url}{division_part}/{resource}"
         url += f"?$filter={primary_key} eq guid '{primary_key_value}'"
         url += ("", f"&$select={parsed_select}")[len(select) > 0]
+        url += ("", f"&$expand={parsed_expand}")[len(expand) > 0]
 
         req = httpx.get(url=url, headers=headers)
         req.raise_for_status()
