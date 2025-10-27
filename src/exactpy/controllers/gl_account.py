@@ -7,4 +7,6 @@ class GLAccountController(BaseController):
     _mandatory_query_arg_options = []
     _mandatory_filter_options = []
     _model = GLAccount
-    _expand = ["DeductiblePercentages"]
+    _expand = [
+        "DeductibilityPercentages",
+    ]

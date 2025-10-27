@@ -58,8 +58,8 @@ class GLAccount(ExactOnlineBaseModel):
     vat__code: str | None = None
     vat__description: str | None = None
     vatgl__account_type: str | None = None
-    # vat__non_deductible_gl_account: GUID
+    vat__non_deductible_gl__account: GUID
     vat__non_deductible_percentage: float | None = None
     vat__system: VATSystemEnum | None
-    year_end_cost_gl_account: GUID
-    year_end_reflection_gl_account: GUID
+    year_end_cost_gl__account: GUID
+    year_end_reflection_gl__account: GUID
