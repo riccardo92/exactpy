@@ -26,3 +26,10 @@ def guid_validator(value: Any):
     ):
         return value
     raise ValidationError("Input is not a string or is not a valid GUID.")
+
+
+def nested_results_validator(value: Any):
+    if isinstance(value, dict):
+        if "results" in value:
+            return value["results"]
+    raise ValidationError("Input did not contain nested results.")

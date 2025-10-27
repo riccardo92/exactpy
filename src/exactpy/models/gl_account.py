@@ -1,4 +1,9 @@
+from typing import Annotated, List
+
+from pydantic import BeforeValidator
+
 from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.deductibility_percentage import DeductibilityPercentage
 from exactpy.types import (
     GUID,
     BalanceSideEnum,
@@ -9,6 +14,7 @@ from exactpy.types import (
     GLAccountTypeEnum,
     VATSystemEnum,
 )
+from exactpy.validators import nested_results_validator
 
 
 class GLAccount(ExactOnlineBaseModel):
@@ -28,7 +34,9 @@ class GLAccount(ExactOnlineBaseModel):
     creator: GUID
     creator_full_name: str | None = None
     custom_field: str | None = None
-    # deductibility_percentages: List[DeductibilityPercentage] = []
+    deductibility_percentages: Annotated[
+        List[DeductibilityPercentage], BeforeValidator(nested_results_validator)
+    ] = []
     description: str | None = None
     division: int | None = None
     exclude_vat__listing: int | None = None
