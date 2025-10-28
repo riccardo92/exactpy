@@ -1,9 +1,9 @@
 from exactpy.controllers.base import BaseController
-from exactpy.models import GLAccountModel
+from exactpy.models.financial import GLAccountModel
 
 
 class GLAccountController(BaseController):
-    _resource = "financial/glaccounts"
+    _resource = "financial/GLAccounts"
     _mandatory_query_arg_options = []
     _mandatory_filter_options = []
     _model = GLAccountModel

@@ -6,7 +6,7 @@ from loguru import logger
 from pydantic import BaseModel, TypeAdapter
 
 from exactpy.exceptions import InsufficientQueryArgsSet, NoFiltersSetException
-from exactpy.models import ExactOnlineBaseModel
+from exactpy.models.base import ExactOnlineBaseModel
 
 if TYPE_CHECKING:
     from exactpy.client import Client

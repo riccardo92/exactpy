@@ -2,8 +2,8 @@ from typing import Annotated, List
 
 from pydantic import BeforeValidator
 
-from exactpy.models import DeductibilityPercentageModel
 from exactpy.models.base import ExactOnlineBaseModel
+from exactpy.models.financial import DeductibilityPercentageModel
 from exactpy.types import (
     GUID,
     BalanceSideEnum,

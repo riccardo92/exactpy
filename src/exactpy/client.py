@@ -9,12 +9,46 @@ import httpx
 from loguru import logger
 
 from exactpy.auth import Auth
-from exactpy.controllers import (
+from exactpy.controllers.crm import (
     AccountController,
+)
+from exactpy.controllers.financial import (
+    AgingOverviewByAccountController,
+    AgingOverviewController,
+    AgingPayablesListByAgeGroupController,
+    AgingPayablesListController,
+    AgingReceivablesListByAgeGroupController,
+    AgingReceivablesListController,
+    DeductibilityPercentageController,
+    ExchangeRateController,
+    FinancialPeriodController,
     GLAccountClassificationMappingsController,
     GLAccountController,
-    MeController,
+    GLSchemeController,
+    GLTransactionSourceController,
+    GLTransactionTypeController,
+    JournalController,
+    JournalStatusListController,
+    OfficialReturnController,
+    OustandingInvoicesOverviewController,
+    PayablesListByAccountAndAgeGroupController,
+    PayablesListByAccountController,
+    PayablesListByAgeGroupController,
+    PayablesListController,
+    ProfitLossOverviewController,
+    ReceivablesListByAccountAndAgeGroupController,
+    ReceivablesListByAccountController,
+    ReceivablesListByAgeGroupController,
+    ReceivablesListController,
     ReportingBalanceByClassificationController,
+    ReportingBalanceController,
+    ReturnController,
+    RevenueListByYearAndStatusController,
+    RevenueListByYearController,
+    RevenueListController,
+)
+from exactpy.controllers.system import (
+    MeController,
 )
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
 
@@ -24,6 +58,9 @@ BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"
 class FilterOperatorEnum(StrEnum):
     AND = "and"
     OR = "or"
+
+
+class Namespace: ...
 
 
 class Client:
@@ -122,16 +159,7 @@ class Client:
         self._rate_limits_remaining_minutely_calls = -1
         self._rate_limits_minutely_reset = -1.0
 
-        # Set up endpoints
-        self.accounts = AccountController(self)
-        self.me = MeController(self)
-        self.gl_accounts = GLAccountController(self)
-        self.reporting_balances_by_classification = (
-            ReportingBalanceByClassificationController(self)
-        )
-        self.gl_accounts_classification_mappings = (
-            GLAccountClassificationMappingsController(self)
-        )
+        self._setup_namespaces_and_controllers()
 
     @staticmethod
     def _parse_query_args(query_args: Dict[str, str]) -> str:
@@ -190,7 +218,7 @@ class Client:
             )
 
     def get_current_division(self):
-        return self.me.show().current_division
+        return self.system.me.show().current_division
 
     def _update_rate_limits(self, headers: httpx.Headers):
         """Updates usages and rate limits for current client
@@ -341,3 +369,74 @@ class Client:
         self._update_rate_limits(req.headers)
 
         return req
+
+    def _setup_namespaces_and_controllers(self):
+        """Register namespaces and initialize controller classes."""
+        # Set up namespaces
+        self.financial = Namespace()
+        self.crm = Namespace()
+        self.system = Namespace()
+
+        # Set up endpoints
+        self.financial.aging_overviews = AgingOverviewController(self)
+        self.financial.aging_overviews_by_account = AgingOverviewByAccountController(
+            self
+        )
+        self.financial.aging_payables_lists = AgingPayablesListController(self)
+        self.financial.aging_payables_lists_by_age = (
+            AgingPayablesListByAgeGroupController(self)
+        )
+        self.financial.aging_receivables_lists = AgingReceivablesListController(self)
+        self.financial.aging_receivables_lists_by_age = (
+            AgingReceivablesListByAgeGroupController(self)
+        )
+        self.financial.deductibilities = DeductibilityPercentageController(self)
+        self.financial.exchange_rates = ExchangeRateController(self)
+        self.financial.financial_periods = FinancialPeriodController(self)
+        self.financial.gl_accounts_classification_mappings = (
+            GLAccountClassificationMappingsController(self)
+        )
+        self.financial.gl_accounts = GLAccountController(self)
+        self.financial.gl_schemes = GLSchemeController(self)
+        self.financial.gl_transaction_sources = GLTransactionSourceController(self)
+        self.financial.gl_transaction_types = GLTransactionTypeController(self)
+
+        self.financial.journal_status_lists = JournalStatusListController(self)
+        self.financial.journals = JournalController(self)
+        self.financial.official_returns = OfficialReturnController(self)
+        self.financial.outstanding_invoices_overviews = (
+            OustandingInvoicesOverviewController(self)
+        )
+        self.financial.payables_lists = PayablesListController(self)
+        self.financial.payables_lists_by_account = PayablesListByAccountController(self)
+        self.financial.payables_lists_by_age_group = PayablesListByAgeGroupController(
+            self
+        )
+        self.financial.payables_lists_by_account_and_age_group = (
+            PayablesListByAccountAndAgeGroupController(self)
+        )
+
+        self.financial.receivables_lists = ReceivablesListController(self)
+        self.financial.receivables_lists_by_account = (
+            ReceivablesListByAgeGroupController(self)
+        )
+        self.financial.receivables_lists_by_age_group = (
+            ReceivablesListByAccountController(self)
+        )
+        self.financial.receivables_lists_by_account_and_age_group = (
+            ReceivablesListByAccountAndAgeGroupController(self)
+        )
+        self.financial.profit_loss_overviews = ProfitLossOverviewController(self)
+        self.financial.reporting_balances = ReportingBalanceController(self)
+        self.financial.reporting_balances_by_classification = (
+            ReportingBalanceByClassificationController(self)
+        )
+        self.financial.returns = ReturnController(self)
+        self.financial.revenue_lists = RevenueListController(self)
+        self.financial.revenue_lists_by_year = RevenueListByYearController(self)
+        self.financial.revenue_lists_by_year_and_status = (
+            RevenueListByYearAndStatusController(self)
+        )
+
+        self.crm.accounts = AccountController(self)
+        self.system.me = MeController(self)

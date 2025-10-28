@@ -1,9 +1,9 @@
 from exactpy.controllers.base import BaseController
-from exactpy.models import AccountModel
+from exactpy.models.crm import AccountModel
 
 
 class AccountController(BaseController):
-    _resource = "crm/accounts"
+    _resource = "crm/Accounts"
     _mandatory_query_arg_options = []
     _mandatory_filter_options = []
     _model = AccountModel
