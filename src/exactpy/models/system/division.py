@@ -40,7 +40,7 @@ class DivisionModel(ExactOnlineBaseModel):
     datev_accountant_number: str | None = None
     datev_client_number: str | None = None
     description: str | None = None
-    division_hr_link_unlink_date: ExactUnixTimestamp
+    division_hr__link_unlink_date: ExactUnixTimestamp
     division_move_date: ExactUnixTimestamp
     email: str | None = None
     fax: str | None = None

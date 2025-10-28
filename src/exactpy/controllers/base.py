@@ -43,7 +43,7 @@ class BaseController:
             dict: The query arg pydantic model dump.
         """
         if self._query_args_model is None:
-            return True
+            return {}
 
         return self._query_args_model.model_validate(query_args).model_dump()
 
