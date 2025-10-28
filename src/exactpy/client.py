@@ -48,6 +48,7 @@ from exactpy.controllers.financial import (
     RevenueListController,
 )
 from exactpy.controllers.system import (
+    DivisionController,
     MeController,
 )
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
@@ -440,3 +441,4 @@ class Client:
 
         self.crm.accounts = AccountController(self)
         self.system.me = MeController(self)
+        self.system.divisions = DivisionController(self)
