@@ -4,8 +4,6 @@ from exactpy.models.financial import GLAccountModel
 
 class GLAccountController(BaseController):
     _resource = "financial/GLAccounts"
-    _mandatory_query_arg_options = []
-    _mandatory_filter_options = []
     _model = GLAccountModel
     _expand = [
         "DeductibilityPercentages",
