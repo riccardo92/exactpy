@@ -4,6 +4,24 @@
 
 ### Fix
 
+- added all new financial controller classes and refactored how controller classes are registered to client
+- **models**: implemented RevenueList model
+- **models**: implemented Return model
+- **models**: implemented ReportingBalanceModel model
+- **models**: implemented ProfitLossOverviewModel
+- **models**: implemented PayablesListByAccountAndAgeGroup model
+- **models**: implemented OutstandingInvoicesOverview model
+- **models**: implemented OfficialReturn model
+- **models**: implemented JournalStatusByFinancialPeriod model
+- **models**: implemented GLScheme model
+- **models**: implemented ExchangeRate and FinancialPeriod models
+- **models**: implemented AgingReceivablesList and AgingReceivablesListByAgeGroup models
+- **models**: implemented AgingPayablesListByAgeGroup model
+- **models**: implemented AgingPayables model
+- **models**: implemented AgingOverview model
+- **models**: implemented AgingOverviewByAccount model
+- controllers and models are now namespaced by service
+- **controllers**: lower case resource names
 - **models/base.py**: enum value serializaton
 - refactored model and controller imports
 - added journal model and controller
