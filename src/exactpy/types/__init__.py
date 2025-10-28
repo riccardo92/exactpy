@@ -126,3 +126,10 @@ class JournalFrequencyEnum(IntEnum):
     QUARTERLY: 30
     YEARLY: 40
     FINANCIAL_YEAR_QUARTER: 100
+
+
+class ApprovalStatusEnum(IntEnum):
+    NA = 1
+    AWAITING_REVIEW = 2
+    AWAITING_APPROVAL = 3
+    APPROVED = 4
