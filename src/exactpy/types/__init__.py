@@ -113,3 +113,16 @@ class JournalTypeEnum(IntEnum):
 class JournalStatusEnum(IntEnum):
     OPEN = 0
     CLOSED = 1
+
+
+class ReturnSourceEnum(IntEnum):
+    EOL: 1
+    REST_API: 2
+
+
+class JournalFrequencyEnum(IntEnum):
+    MONTHLY: 10
+    TWO_MONTHLY: 20
+    QUARTERLY: 30
+    YEARLY: 40
+    FINANCIAL_YEAR_QUARTER: 100
