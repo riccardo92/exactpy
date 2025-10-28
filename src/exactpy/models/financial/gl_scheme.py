@@ -6,6 +6,7 @@ from exactpy.types import (
 
 
 class GLSchemeModel(ExactOnlineBaseModel):
+    _pk = "id"
     id: GUID
     code: str | None = None
     created: ExactUnixTimestamp

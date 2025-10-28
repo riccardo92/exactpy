@@ -108,3 +108,8 @@ class JournalTypeEnum(IntEnum):
     PURCHASE: 22
     RECEIVED_RETURN_INVOICE: 23
     GENERAL_JOURNAL: 90
+
+
+class JournalStatusEnum(IntEnum):
+    OPEN = 0
+    CLOSED = 1
