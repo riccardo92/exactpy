@@ -133,3 +133,8 @@ class ApprovalStatusEnum(IntEnum):
     AWAITING_REVIEW = 2
     AWAITING_APPROVAL = 3
     APPROVED = 4
+
+
+class ReportingBalanceStatusEnum(IntEnum):
+    OPEN = 20
+    PROCESSED = 50

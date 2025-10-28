@@ -6,7 +6,7 @@ from exactpy.types import (
 )
 
 
-class PayablesListModel(ExactOnlineBaseModel):
+class PayablesReceivablesListModel(ExactOnlineBaseModel):
     _pk = "hid__"
     hid__: int
     account_code: str | None = None

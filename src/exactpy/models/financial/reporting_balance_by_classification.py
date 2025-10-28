@@ -1,5 +1,5 @@
 from exactpy.models.base import ExactOnlineBaseModel
-from exactpy.types import GUID, BalanceTypeEnum
+from exactpy.types import GUID, BalanceTypeEnum, ReportingBalanceStatusEnum
 
 
 class ReportingBalanceByClassificationModel(ExactOnlineBaseModel):
@@ -22,5 +22,5 @@ class ReportingBalanceByClassificationModel(ExactOnlineBaseModel):
     gl__scheme: GUID
     reporting_period: int | None = None
     reporting_year: int | None = None
-    status: int | None = None
+    status: ReportingBalanceStatusEnum
     type: int | None = None
