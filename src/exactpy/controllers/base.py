@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Dict, List, Type, Union
 from loguru import logger
 from pydantic import BaseModel, TypeAdapter
 
-from exactpy.exceptions import InsufficientQueryArgsSet, NoFiltersSetException
+from exactpy.exceptions import NoFiltersSetException
 from exactpy.models.base import ExactOnlineBaseModel
 
 if TYPE_CHECKING:
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class BaseController:
     _resource: str
-    _mandatory_query_arg_options: List[str] = []
+    _query_args_model: Type[BaseModel] | None = None
     _mandatory_filter_options: List[str] = []
     _model: Type[BaseModel]
     _expand: List[str] = []
@@ -26,31 +26,26 @@ class BaseController:
         self._client = client
         self._list_adapter = TypeAdapter(List[self._model])
 
-    def _check_query_args(self, query_args: Dict[str, Union[str, int, float]] = {}):
-        """Checks whether (the right) query args have been set in case
-        they are mandatory.
+    def _check_query_args(
+        self, query_args: Dict[str, Union[str, int, float]] = {}
+    ) -> dict:
+        """Validates query args using a pydantic model, and returns a dict
+        dumped by the pydantic validation model if successful.
 
         Args:
             query_args (Dict[str, Union[str, int, float]], optional):
                 Dict of query arg key, value pairs. Defaults to {}
 
         Raises:
-            NoQueryArgsSetException: Raised when no filters are set while
-                there are mandatory filters.
+            ValidationError: Raised if query args don't pass pydantic model validation.
+
+        Returns:
+            dict: The query arg pydantic model dump.
         """
-        query_arg_options = ", ".join(self._mandatory_query_arg_options)
-        if len(self._mandatory_filter_options) > 0 and len(query_args) == 0:
-            raise InsufficientQueryArgsSet(
-                f"No query args set. This model requires mandatory query args. Choices are '{query_arg_options}'"
-            )
-        elif (
-            len(self._mandatory_query_arg_options) > 0
-            and set(self._mandatory_query_arg_options).intersection(query_args.keys())
-            == {}
-        ):
-            raise InsufficientQueryArgsSet(
-                f"Not all mandatory query args set. Choices are '{query_arg_options}'"
-            )
+        if self._query_args_model is None:
+            return True
+
+        return self._query_args_model.model_validate(query_args).model_dump()
 
     def _check_filters(self, filters: Dict[str, Union[str, int, float]] = {}):
         """Checks whether (the right) filters have been set in case
@@ -138,7 +133,7 @@ class BaseController:
 
         # Check mandatory filters and query args
         self._check_filters(filters=filters)
-        self._check_query_args(query_args=query_args)
+        query_arg_dump = self._check_query_args(query_args=query_args)
 
         # Set expand attributes if they aren't set
         if expand == []:
@@ -147,7 +142,7 @@ class BaseController:
         # Initial get request to get first page
         resp = self._client.get(
             resource=self._resource,
-            query_args=query_args,
+            query_args=query_arg_dump,
             filters=filters,
             select=select,
             expand=expand,

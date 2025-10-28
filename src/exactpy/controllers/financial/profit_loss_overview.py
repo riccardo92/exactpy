@@ -4,7 +4,4 @@ from exactpy.models.financial import ProfitLossOverviewModel
 
 class ProfitLossOverviewController(BaseController):
     _resource = "read/financial/ProfitLossOverview"
-    _mandatory_query_arg_options = []
-    _mandatory_filter_options = []
     _model = ProfitLossOverviewModel
-    _expand = []

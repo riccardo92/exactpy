@@ -6,6 +6,4 @@ from exactpy.models.financial import (
 
 class ReportingBalanceController(BaseController):
     _resource = "financial/ReportingBalance"
-    _mandatory_query_arg_options = []
-    _mandatory_filter_options = []
     _model = ReportingBalanceModel
