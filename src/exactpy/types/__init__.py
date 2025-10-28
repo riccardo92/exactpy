@@ -162,3 +162,19 @@ class ReturnTypeEnum(IntEnum):
     VAT: 31
     EC_SALES_LIST: 32
     PAYROLL_DECLARATION: 146
+
+
+class BlockingStatusEnum(IntEnum):
+    NOT_BLOCKED = 0
+    BACKUP_RESTORE = 1
+    CONVERSION__BUSY = 2
+    CONVERSION_SHADOW = 3
+    CONVERSION_WAITING = 4
+    COPY_DATA_WAITING = 5
+    COPY_DATA_BUSY = 6
+
+
+class DivisionStatusEnum(IntEnum):
+    INACTIVE = 0
+    ACTIVE = 1
+    ARCHIVED = 2
