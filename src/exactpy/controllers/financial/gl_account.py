@@ -1,5 +1,5 @@
 from exactpy.controllers.base import BaseController
-from exactpy.models import GLAccountModel
+from exactpy.models.financial import GLAccountModel
 
 
 class GLAccountController(BaseController):

@@ -1,5 +1,5 @@
 from exactpy.controllers.base import BaseController
-from exactpy.models import AccountModel
+from exactpy.models.crm import AccountModel
 
 
 class AccountController(BaseController):

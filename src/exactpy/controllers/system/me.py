@@ -1,5 +1,5 @@
 from exactpy.controllers.base import BaseController
-from exactpy.models import MeModel
+from exactpy.models.system import MeModel
 
 
 class MeController(BaseController):

@@ -9,3 +9,6 @@ class ExactOnlineBaseModel(BaseModel):
         validate_by_alias=True,
         use_enum_values=True,
     )
+
+    # Indicates what field is used as primary key
+    _pk: str | None = None

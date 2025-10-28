@@ -1,5 +1,5 @@
 from exactpy.controllers.base import BaseController
-from exactpy.models import (
+from exactpy.models.financial import (
     GLAccountClassificationMappingsModel,
 )
 

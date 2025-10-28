@@ -108,3 +108,57 @@ class JournalTypeEnum(IntEnum):
     PURCHASE: 22
     RECEIVED_RETURN_INVOICE: 23
     GENERAL_JOURNAL: 90
+
+
+class JournalStatusEnum(IntEnum):
+    OPEN = 0
+    CLOSED = 1
+
+
+class ReturnSourceEnum(IntEnum):
+    EOL: 1
+    REST_API: 2
+
+
+class JournalFrequencyEnum(IntEnum):
+    MONTHLY: 10
+    TWO_MONTHLY: 20
+    QUARTERLY: 30
+    YEARLY: 40
+    FINANCIAL_YEAR_QUARTER: 100
+
+
+class ApprovalStatusEnum(IntEnum):
+    NA = 1
+    AWAITING_REVIEW = 2
+    AWAITING_APPROVAL = 3
+    APPROVED = 4
+
+
+class ReportingBalanceStatusEnum(IntEnum):
+    OPEN = 20
+    PROCESSED = 50
+
+
+class ReturnFrequencyEnum(StrEnum):
+    MONTHLY = "m"
+    QUARTERLY = "q"
+    FINANCIAL_YEAR_QUARTER = "a"
+    YEARLY = "y"
+
+
+class ReturnStatusEnum(IntEnum):
+    NULL = -10
+    VOID = 0
+    REJECTED = 5
+    DRAFT = 10
+    OPEN = 20
+    APPROVED = 30
+    REALIZED = 40
+    PROCESSED = 50
+
+
+class ReturnTypeEnum(IntEnum):
+    VAT: 31
+    EC_SALES_LIST: 32
+    PAYROLL_DECLARATION: 146
