@@ -4,6 +4,8 @@
 
 ### Fix
 
+- **controllers/base.py**: fixed return type hint of query arg validation method
+- **models**: implemented pydantic model validation for query args
 - added all new financial controller classes and refactored how controller classes are registered to client
 - **models**: implemented RevenueList model
 - **models**: implemented Return model
