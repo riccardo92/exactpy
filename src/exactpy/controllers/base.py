@@ -28,7 +28,7 @@ class BaseController:
 
     def _check_query_args(
         self, query_args: Dict[str, Union[str, int, float]] = {}
-    ) -> Type[BaseModel]:
+    ) -> dict:
         """Validates query args using a pydantic model, and returns a dict
         dumped by the pydantic validation model if successful.
 
