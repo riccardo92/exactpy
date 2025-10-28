@@ -11,4 +11,4 @@ class ExactOnlineBaseModel(BaseModel):
     )
 
     # Indicates what field is used as primary key
-    _pk: str = ""
+    _pk: str | None = None
