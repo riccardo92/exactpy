@@ -4,7 +4,7 @@ from exactpy.types import (
 )
 
 
-class AgingPayablesModel(ExactOnlineBaseModel):
+class AgingPayablesListModel(ExactOnlineBaseModel):
     _pk = "account_id"
     account_id: GUID
     account_code: str | None = None
