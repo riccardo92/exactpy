@@ -1,21 +1,21 @@
-from exactpy.models.account import AccountModel
-from exactpy.models.bank_account import BankAccountModel
-from exactpy.models.base import ExactOnlineBaseModel
-from exactpy.models.deductibility_percentage import DeductibilityPercentageModel
-from exactpy.models.gl_account import GLAccountModel
-from exactpy.models.gl_account_classification_mappings import (
+from exactpy.models.crm.account import AccountModel
+from exactpy.models.crm.bank_account import BankAccountModel
+from exactpy.models.financial.deductibility_percentage import (
+    DeductibilityPercentageModel,
+)
+from exactpy.models.financial.gl_account import GLAccountModel
+from exactpy.models.financial.gl_account_classification_mappings import (
     GLAccountClassificationMappingsModel,
 )
-from exactpy.models.journal import JournalModel
-from exactpy.models.me import MeModel
-from exactpy.models.reporting_balance_by_classification import (
+from exactpy.models.financial.journal import JournalModel
+from exactpy.models.financial.reporting_balance_by_classification import (
     ReportingBalanceByClassificationModel,
 )
+from exactpy.models.system.me import MeModel
 
 __all__ = [
     AccountModel,
     BankAccountModel,
-    ExactOnlineBaseModel,
     DeductibilityPercentageModel,
     GLAccountModel,
     GLAccountClassificationMappingsModel,
