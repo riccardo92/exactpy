@@ -18,6 +18,7 @@ from exactpy.validators import nested_results_validator
 
 
 class GLAccountModel(ExactOnlineBaseModel):
+    _pk = "id"
     id: GUID
     allow_costs_in_sales: int | None = None
     assimilated_vat__box: int | None = None

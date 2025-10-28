@@ -13,7 +13,7 @@ ExactUnixTimestamp = Annotated[
     PlainSerializer(exact_unix_transformer),
 ]
 
-GUID = Annotated[str | None, BeforeValidator(guid_validator)]
+GUID = Annotated[str | None, BeforeValidator(guid_validator), "guid"]
 
 
 class BalanceTypeEnum(StrEnum):

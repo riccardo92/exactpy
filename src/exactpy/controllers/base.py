@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Type, Union
+import typing
+from typing import TYPE_CHECKING, Annotated, Dict, List, Type, Union, get_origin
 
 from loguru import logger
 from pydantic import BaseModel, TypeAdapter
@@ -45,7 +46,10 @@ class BaseController:
         if self._query_args_model is None:
             return {}
 
-        return self._query_args_model.model_validate(query_args).model_dump()
+        # Dump query args to dict in (Exact Online) aliases
+        return self._query_args_model.model_validate(query_args).model_dump(
+            by_alias=True
+        )
 
     def _check_filters(self, filters: Dict[str, Union[str, int, float]] = {}):
         """Checks whether (the right) filters have been set in case
@@ -73,14 +77,12 @@ class BaseController:
     def show(
         self,
         primary_key_value: Union[str, int],
-        primary_key: str = "ID",
         expand: List[str] = [],
     ) -> Type[ExactOnlineBaseModel]:
         """Retrieve a single instance of a model by primary key.
 
         Args:
             primary_key_value (Union[str, int]): value of primary key field.
-            primary_key (str, optional): name of primary key field. Defaults to "ID".
             expand (List[str], optional): Attributes to expand (in Exact Online naming, so
                 Pascal case). Defaults to [].
 
@@ -88,17 +90,28 @@ class BaseController:
             Type[ExactOnlineBaseModel]: In instance of a subclass of ExactOnlineBaseModel.
         """
 
+        if self._model._pk is None:
+            raise ValueError("Model's primary key (_pk) property is not set.")
+
         # Set expand attributes if they aren't set
         if expand == []:
             expand = self._expand
 
+        is_guid = False
+        pk_type = typing.get_type_hints(self._model, include_extras=True)[
+            self._model._pk.default
+        ]
+        if get_origin(pk_type) is Annotated:
+            is_guid = pk_type.__metadata__[-1] == "guid"
+
         # Retrieve single instance and convert to pydantic
         return self._model.model_validate(
-            json_data=self._client.get(
+            self._client.show(
                 resource=self._resource,
-                primary_key=primary_key,
+                primary_key=self._model.model_fields[self._model._pk.default].alias,
                 primary_key_value=primary_key_value,
                 expand=expand,
+                is_guid=is_guid,
             ).json()["d"]["results"][0],
             extra="ignore",
         )
