@@ -3,7 +3,7 @@ from exactpy.models import MeModel
 
 
 class MeController(BaseController):
-    _resource = "current/Me"
+    _resource = "current/me"
     _mandatory_query_arg_options = []
     _mandatory_filter_options = []
     _model = MeModel

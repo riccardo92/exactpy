@@ -5,7 +5,7 @@ from exactpy.models import (
 
 
 class ReportingBalanceByClassificationController(BaseController):
-    _resource = "read/financial/ReportingBalanceByClassification"
+    _resource = "read/financial/reportingbalancebyclassification"
     _mandatory_query_arg_options = ["gl_scheme", "reporting_year"]
     _mandatory_filter_options = []
     _model = ReportingBalanceByClassificationModel
