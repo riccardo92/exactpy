@@ -17,6 +17,7 @@ dependencies = [
 pandas = []
 
 [dependency-groups]
+dev = []
 pre-commit = [
     "deptry>=0.20.0",
 ]
