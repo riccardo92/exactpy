@@ -8,6 +8,7 @@ from pydantic import BaseModel, TypeAdapter
 
 from exactpy.exceptions import NoFiltersSetException
 from exactpy.models.base import ExactOnlineBaseModel
+from exactpy.utils import create_partial_model
 
 if TYPE_CHECKING:
     from exactpy.client import Client
@@ -164,17 +165,30 @@ class BaseController:
         if expand == []:
             expand = self._expand
 
+        # Check if select cols are set. If so, we have to
+        # generate a partial model with those fields.
+        list_adapter = self._list_adapter
+        if len(select) > 0:
+            partial_model = create_partial_model(
+                model=self._model,
+                fields=select,
+            )
+            list_adapter = TypeAdapter(List[partial_model])
+
+        # Parse select cols into Exact Online naming (Pascal case)
+        parsed_select = [self._model.model_fields[field].alias for field in select]
+
         # Initial get request to get first page
         resp = self._client.get(
             resource=self._resource,
             query_args=query_arg_dump,
             filters=filters,
-            select=select,
+            select=parsed_select,
             expand=expand,
         ).json()
 
         # Convert to Pydantic
-        results = self._list_adapter.validate_python(resp["d"]["results"])
+        results = list_adapter.validate_python(resp["d"]["results"])
         from pprint import pprint
 
         print("***" * 100)
@@ -199,13 +213,13 @@ class BaseController:
                 resource=self._resource,
                 query_args=query_arg_dump,
                 filters=filters,
-                select=select,
+                select=parsed_select,
                 expand=expand,
                 skip_token=skip_token,
             ).json()
 
             # Convert to Pydantic
-            temp_results = self._list_adapter.validate_python(
+            temp_results = list_adapter.validate_python(
                 resp["d"]["results"], extra="ignore"
             )
             results.extend(temp_results)
