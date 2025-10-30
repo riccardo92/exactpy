@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **client.py**: removed debug print
+
 ## 0.0.9 (2025-10-30)
 
 ### Fix
