@@ -85,6 +85,15 @@ class BaseController:
                 f"No valid mandatory filter set. Choices are '{filter_options}'"
             )
 
+        # Convert filter names to Exact Online naming (Pascal case)
+        parsed_filters = {
+            self._model.model_fields[field].alias: value
+            for field, value in filters.items()
+            if field in self._model.model_fields
+        }
+
+        return parsed_filters
+
     def _is_guid(self, key: str, model: Type[BaseModel]):
         is_guid = False
         pk_type = typing.get_type_hints(model, include_extras=True)[key]
@@ -158,7 +167,7 @@ class BaseController:
             return []
 
         # Check mandatory filters and query args
-        self._check_filters(filters=filters)
+        parsed_filters = self._check_filters(filters=filters)
         query_arg_dump = self._check_query_args(query_args=query_args)
 
         # Set expand attributes if they aren't set
@@ -182,7 +191,7 @@ class BaseController:
         resp = self._client.get(
             resource=self._resource,
             query_args=query_arg_dump,
-            filters=filters,
+            filters=parsed_filters,
             select=parsed_select,
             expand=expand,
         ).json()
@@ -212,7 +221,7 @@ class BaseController:
             resp = self._client.get(
                 resource=self._resource,
                 query_args=query_arg_dump,
-                filters=filters,
+                filters=parsed_filters,
                 select=parsed_select,
                 expand=expand,
                 skip_token=skip_token,
