@@ -4,6 +4,13 @@
 
 ### Fix
 
+- **client.py**: bugfix numeric filtering
+- fixed some wrongly named properties in financial models
+- _pk now used as primary key for single object retrieval in show method
+- **models/division**: date property fix
+- **client**: added division controller reference
+- **controllers**: implemented vision controller
+- **models**: implemented division model
 - **controllers/base.py**: fixed return type hint of query arg validation method
 - **models**: implemented pydantic model validation for query args
 - added all new financial controller classes and refactored how controller classes are registered to client
