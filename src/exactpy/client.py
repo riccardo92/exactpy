@@ -311,7 +311,7 @@ class Client:
         headers.update(BASE_HEADERS)
 
         parsed_query_args = Client._parse_query_args(query_args=query_args)
-        print("parsed_query_args", parsed_query_args)
+
         parsed_filters = Client._parse_filters(
             filters=filters, filter_operator=filter_operator
         )
