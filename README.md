@@ -1,6 +1,52 @@
 # ExactPy
 
-A modern, highly configurable Python interface to the Exact Online API based on Pydantic.
+A modern, highly configurable Python interface to the Exact Online API based on `Pydantic` and `httpx` and offers support for conversion to Pandas DataFrames.
+
+## Installing
+
+You can install directly from PyPI using e.g.
+
+```bash
+uv add exactpy
+```
+
+or
+
+```bash
+pip install exactpy
+```
+
+or you can install locally from file using:
+
+```bash
+uv pip install -e <location_on_disk>
+```
+
+## Developing
+
+This repo provides a devcontainer to easily develop the package. It assumes you have `uv` and `fish` installed on your host system. This cannot be made optional because these assumptions involve bind mounts.
+
+Install the package locally (symlinked) within the `venv` created by `uv` using:
+
+```bash
+uv pip install -e .
+```
+
+### Pre-commit
+
+We use `pre-commit` to run a few hooks to ensure code quality and stuff like that. Please use the devcontainer, all this is taken care for you if you do so.
+
+### Running tests
+
+We use `tox` for bothing running the tests as well as running `pre-commit`. Please run `tox` to run your tests.
+
+## Contributing
+
+Please see `CONTRIBUTING.md`.
+
+## Issues
+
+If you discover bugs or other issues, please create an issue with a stack trace and code to reproduce. We have no predefined format for issues, just make sure there is enough info to reproduce.
 
 ## Why?
 
@@ -15,23 +61,32 @@ This initial token request theoretically needs to be done once. An access token 
 ```python
 from exactpy.client import Client
 
+client_id = "***"
+client_secret = "***"
+
+# This can be anything, but it needs to satisfy two conditions:
+# 1. It needs to be a valid public website
+# 2. It needs to be website protected by an SSL certificate (https)
+# It needs to match exactly what you entered in your app registration
+redirect_url = "https://some_site"
+
 client = Client(
-    client_id="xxx",
-    client_Secret="xxx,
-    verbose=True,
+    client_id=client_id, client_secret=client_secret, redirect_url=redirect_url
 )
 
-# this can literally be anything, but it needs to be valid
-# so that redirects can happen
-redirect_url = "https://some_website"
-print(client.get_authorization_url(redirect_url=redirect_url)
+# This will print a link that you can click
+# You'll have to log to the Exact Online portal first
+# You'll get redirected to `redirect_url`, and you'll need to copy that url
+print(client.auth_client.get_authorization_url())
 
-# Now, open the url that was printed, log in to exactonline and copy the response url
-response_url = "<paste_url_here>"
+# Enter the url that you've copied earlier and hit enter
+resp_url = input()
 
-# Now retrieve the access token and refresh token
-client.retrieve_token(response_url=response_url)
-client.cache_credentials()
+# If everything went well, you should now be able to acquire
+# a token and refresh token with the line below
+# This will also automatically cache your credentials
+# to file, if caching is enabled (which it is, by default)
+client.auth_client.acquire_token(resp_url)
 ```
 
 If your cache callable was not set to `None`, your credentials should now have been saved. In the default case, they're saved in `creds.json` (plain text).
@@ -40,6 +95,7 @@ Now you can use the client like below:
 
 ```python
 from exactpy.client import Client
+from pprint import pprint
 
 client = Client(
     client_id="xxx",
@@ -47,9 +103,23 @@ client = Client(
     verbose=True,
 )
 
-client.load_credentials()
-client.check_token_validity()
-client.cache_credentials()
+# (Almost) every request requires a division to be set
+# This division number is set as a client property
+# and set with every request, as part of the url
+# You can set the division equal to the current divison
+# (current as in server side) using:
+client.set_initial_division()
+
+# Print the division using:
+pprint(client.get_current_division().model_dump(by_alias=True))
+
+# Alternatively, you may pick a different division by listing them
+# and selecting a specific one:
+divisions = client.system.divisions.all()
+
+# Select the "nth" division and set it as current division
+# n = 0...len(divisions)-1
+client.current_division = divisions[n].code
 
 # Every request you do, will trigger a token
 # check as well. In the default case, auto-caching is done
@@ -58,5 +128,10 @@ client.cache_credentials()
 # if cache_callable was not set to None.
 # To disable this behaviour, either set cache_callable to None
 # or set autocache_enabled to False.
-accounts = client.accounts.all()
+
+# Note that endpoint controllers are namespaced by service,
+# as shown below (general ledger accounts are part of the
+# financial service) and above (divisions are part of the)
+# system service
+gl_accounts = client.financial.gl_accounts.all()
 ```

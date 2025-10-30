@@ -11,14 +11,14 @@
     "create permanent fish history": "mkdir -p ~/.devcontainer/${devcontainerId} && touch ~/.devcontainer/${devcontainerId}/fish_history"
   },
   "onCreateCommand": {
+    "create venv": "uv venv --clear",
     "uv tox": "uv tool install tox --with tox-uv",
-    "pre-commit hooks": "pre-commit install --install-hooks",
-    "pre-commit type": "pre-commit install --hook-type commit-msg",
-    "create venv": "uv venv"
+    "uv prek": "uv tool install prek"
   },
   "updateContentCommand": {
     "sync dependencies": "uv sync --all-groups",
-    "uv completions": "uv generate-shell-completion fish > ~/.config/fish/completions/uv.fish"
+    "prek install": "prek install",
+    "prek install-hooks": "prek install-hooks"
   },
   "postCreateCommand": {
     "clean up tox": "rm -rf ${containerWorkspaceFolder}/.tox"
@@ -91,7 +91,8 @@
           "testpaths",
           "xunit",
           "yzhang",
-          "exactpy"
+          "exactpy",
+          "creds"
         ]
       }
     }
