@@ -4,6 +4,8 @@
 
 ### Fix
 
+- **models/base.py**: base now deriving from sparkdantic.SparkModel for pyspark model schema functionality
+- **controlles/base.py**: commented debug print
 - **client.py**: removed debug print
 
 ## 0.0.9 (2025-10-30)
