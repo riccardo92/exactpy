@@ -17,7 +17,7 @@ dependencies = [
 [project.optional-dependencies]
 pandas = []
 pyspark = [
-    "pyspark<4.1.0",
+    "pyspark>=4.0.1",
 ]
 
 [dependency-groups]
