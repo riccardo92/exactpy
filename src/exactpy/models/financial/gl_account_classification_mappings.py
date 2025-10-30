@@ -13,4 +13,4 @@ class GLAccountClassificationMappingsModel(ExactOnlineBaseModel):
     gl__account_description: str | None = None
     gl__scheme_code: str | None = None
     gl__scheme_description: str | None = None
-    gl__scheme_id: GUID
+    gl__scheme_id__: GUID

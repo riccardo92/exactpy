@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Type, Union
+import typing
+from typing import TYPE_CHECKING, Annotated, Dict, List, Type, Union, get_origin
 
 from loguru import logger
 from pydantic import BaseModel, TypeAdapter
@@ -43,9 +44,22 @@ class BaseController:
             dict: The query arg pydantic model dump.
         """
         if self._query_args_model is None:
-            return True
+            return {}
 
-        return self._query_args_model.model_validate(query_args).model_dump()
+        # Dump query args to dict in (Exact Online) aliases
+        query_args = self._query_args_model.model_validate(query_args).model_dump()
+        query_args_by_alias = self._query_args_model.model_validate(
+            query_args
+        ).model_dump(by_alias=True)
+        # We have to modify GUID args so that its value matches guid '<val>'
+        # print(self._query_args_model.model_fields)
+        for key, val in query_args.items():
+            if self._is_guid(key, model=self._query_args_model):
+                query_args_by_alias[
+                    self._query_args_model.model_fields[key].serialization_alias
+                ] = f"guid'{val}'"
+        # print(query_args_by_alias)
+        return query_args_by_alias
 
     def _check_filters(self, filters: Dict[str, Union[str, int, float]] = {}):
         """Checks whether (the right) filters have been set in case
@@ -70,17 +84,22 @@ class BaseController:
                 f"No valid mandatory filter set. Choices are '{filter_options}'"
             )
 
+    def _is_guid(self, key: str, model: Type[BaseModel]):
+        is_guid = False
+        pk_type = typing.get_type_hints(model, include_extras=True)[key]
+        if get_origin(pk_type) is Annotated:
+            is_guid = pk_type.__metadata__[-1] == "guid"
+        return is_guid
+
     def show(
         self,
         primary_key_value: Union[str, int],
-        primary_key: str = "ID",
         expand: List[str] = [],
     ) -> Type[ExactOnlineBaseModel]:
         """Retrieve a single instance of a model by primary key.
 
         Args:
             primary_key_value (Union[str, int]): value of primary key field.
-            primary_key (str, optional): name of primary key field. Defaults to "ID".
             expand (List[str], optional): Attributes to expand (in Exact Online naming, so
                 Pascal case). Defaults to [].
 
@@ -88,17 +107,23 @@ class BaseController:
             Type[ExactOnlineBaseModel]: In instance of a subclass of ExactOnlineBaseModel.
         """
 
+        if self._model._pk is None:
+            raise ValueError("Model's primary key (_pk) property is not set.")
+
         # Set expand attributes if they aren't set
         if expand == []:
             expand = self._expand
 
+        is_guid = self._is_guid(self._model._pk.default, self._model)
+
         # Retrieve single instance and convert to pydantic
         return self._model.model_validate(
-            json_data=self._client.get(
+            self._client.show(
                 resource=self._resource,
-                primary_key=primary_key,
+                primary_key=self._model.model_fields[self._model._pk.default].alias,
                 primary_key_value=primary_key_value,
                 expand=expand,
+                is_guid=is_guid,
             ).json()["d"]["results"][0],
             extra="ignore",
         )
@@ -150,7 +175,10 @@ class BaseController:
 
         # Convert to Pydantic
         results = self._list_adapter.validate_python(resp["d"]["results"])
+        from pprint import pprint
 
+        print("***" * 100)
+        pprint(resp["d"]["results"][0])
         page_count = 0
 
         if self._client.verbose:
@@ -169,7 +197,7 @@ class BaseController:
             # Get page
             resp = self._client.get(
                 resource=self._resource,
-                query_args=query_args,
+                query_args=query_arg_dump,
                 filters=filters,
                 select=select,
                 expand=expand,

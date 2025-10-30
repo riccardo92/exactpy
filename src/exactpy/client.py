@@ -48,6 +48,7 @@ from exactpy.controllers.financial import (
     RevenueListController,
 )
 from exactpy.controllers.system import (
+    DivisionController,
     MeController,
 )
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
@@ -192,8 +193,14 @@ class Client:
         parsed_filters = []
         op = str(filter_operator)
         for key, val in filters.items():
-            qu = "' "[val.lower() in ("true", "false")]
-            pref = ("", op)[len(filters) > 0]
+            # We only want quotes for strings, not for bools and numerics
+            qu = (
+                ""
+                if (isinstance(val, str) and val.lower() in ("true", "false"))
+                or isinstance(val, int)
+                else "'"
+            )
+            pref = ("", op)[len(parsed_filters) > 0]
             parsed_filters.append(f" {pref} {key} eq {qu}{val}{qu}")
 
         return ",".join(parsed_filters)
@@ -214,11 +221,21 @@ class Client:
     def _check_division(self):
         if self.current_division is None:
             raise NoDivisionSetException(
-                "You must set a division. You can pass this on init (current_division arg) or set it using client.division = client.get_current_division()."
+                "You must set a division. You can pass this on init (current_division arg) or set it using client.division = client.get_current_division_id()."
             )
 
-    def get_current_division(self):
+    def set_initial_division(self):
+        """When no calls have been made, there is no current division yet.
+        This method retrieves the current division from the api and sets it
+        as the current division in the client."""
+        self.current_division = self.get_current_division_id()
+
+    def get_current_division_id(self):
+        """Retrieve current division id from the api"""
         return self.system.me.show().current_division
+
+    def get_current_division(self):
+        return self.system.divisions.show(primary_key_value=self.current_division)
 
     def _update_rate_limits(self, headers: httpx.Headers):
         """Updates usages and rate limits for current client
@@ -294,6 +311,7 @@ class Client:
         headers.update(BASE_HEADERS)
 
         parsed_query_args = Client._parse_query_args(query_args=query_args)
+        print("parsed_query_args", parsed_query_args)
         parsed_filters = Client._parse_filters(
             filters=filters, filter_operator=filter_operator
         )
@@ -321,6 +339,7 @@ class Client:
         url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
         req = httpx.get(url=url, headers=headers)
+        print(req.content)
         req.raise_for_status()
         self._update_rate_limits(req.headers)
 
@@ -334,6 +353,7 @@ class Client:
         select: List[str] = [],
         expand: List[str] = [],
         include_division: bool = True,
+        is_guid: bool = True,
     ) -> httpx.Response:
         """Calls a get endpoint
 
@@ -360,7 +380,10 @@ class Client:
 
         division_part = ("", f"/{self.current_division}")[include_division]
         url = f"{self.endpoints_url}{division_part}/{resource}"
-        url += f"?$filter={primary_key} eq guid '{primary_key_value}'"
+        if is_guid:
+            url += f"?$filter={primary_key} eq guid '{primary_key_value}'"
+        else:
+            url += f"?$filter={primary_key} eq {primary_key_value}"
         url += ("", f"&$select={parsed_select}")[len(select) > 0]
         url += ("", f"&$expand={parsed_expand}")[len(expand) > 0]
 
@@ -440,3 +463,4 @@ class Client:
 
         self.crm.accounts = AccountController(self)
         self.system.me = MeController(self)
+        self.system.divisions = DivisionController(self)

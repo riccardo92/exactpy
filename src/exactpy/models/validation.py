@@ -6,7 +6,7 @@ from exactpy.types import GUID
 
 class ExactOnlineQABaseModel(BaseModel):
     model_config = ConfigDict(
-        alias_generator=AliasGenerator(alias=to_camel),
+        alias_generator=AliasGenerator(serialization_alias=to_camel),
         use_enum_values=True,
     )
 
@@ -26,7 +26,7 @@ class AccountAgeGroupQAModel(ExactOnlineQABaseModel):
 
 class GLSchemeReportingYearQAModel(ExactOnlineQABaseModel):
     gl_scheme: GUID
-    reportingYear: int
+    reporting_year: int
 
 
 class YearModel(ExactOnlineQABaseModel):
