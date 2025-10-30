@@ -193,8 +193,14 @@ class Client:
         parsed_filters = []
         op = str(filter_operator)
         for key, val in filters.items():
-            qu = "' "[val.lower() in ("true", "false")]
-            pref = ("", op)[len(filters) > 0]
+            # We only want quotes for strings, not for bools and numerics
+            qu = (
+                ""
+                if (isinstance(val, str) and val.lower() in ("true", "false"))
+                or isinstance(val, int)
+                else "'"
+            )
+            pref = ("", op)[len(parsed_filters) > 0]
             parsed_filters.append(f" {pref} {key} eq {qu}{val}{qu}")
 
         return ",".join(parsed_filters)
@@ -333,6 +339,7 @@ class Client:
         url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
         req = httpx.get(url=url, headers=headers)
+        print(req.content)
         req.raise_for_status()
         self._update_rate_limits(req.headers)
 
