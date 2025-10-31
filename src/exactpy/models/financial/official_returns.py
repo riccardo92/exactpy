@@ -13,7 +13,7 @@ class OfficialReturnModel(ExactOnlineBaseModel):
     _pk = "id"
     id: GUID
     amount: float | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="str")
+    created: ExactUnixTimestamp = SparkField(spark_type="string")
     creator: GUID
     creator_full_name: str | None = None
     description: str | None = None
@@ -22,12 +22,12 @@ class OfficialReturnModel(ExactOnlineBaseModel):
     document_subject: str | None = None
     frequency: JournalFrequencyEnum | None
     is_correction: int | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="str")
+    modified: ExactUnixTimestamp = SparkField(spark_type="string")
     modifier: GUID
     modifier_full_name: str | None = None
     period: int | None = None
     presentation_data: str | None = None
-    presentation_date: ExactUnixTimestamp = SparkField(spark_type="str")
+    presentation_date: ExactUnixTimestamp = SparkField(spark_type="string")
     presentation_file: bytes | None = None
     presentation_file_name: str | None = None
     reference: str | None = None

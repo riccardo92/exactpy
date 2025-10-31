@@ -8,13 +8,13 @@ class GLSchemeModel(ExactOnlineBaseModel):
     _pk = "id"
     id: GUID
     code: str | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="str")
+    created: ExactUnixTimestamp = SparkField(spark_type="string")
     creator: GUID
     creator_full_name: str | None = None
     description: str | None = None
     division: int | None = None
     main: int | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="str")
+    modified: ExactUnixTimestamp = SparkField(spark_type="string")
     modifier: GUID
     modifier_full_name: str | None = None
     target_namespace: str | None = None
