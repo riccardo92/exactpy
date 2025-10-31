@@ -13,7 +13,7 @@ class DeductibilityPercentageModel(ExactOnlineBaseModel):
     division: int | None = None
     end_date: ExactUnixTimestamp
     expense_non_deductible_percentage: float | None = None
-    gl_account: GUID
+    gl__account: GUID
     line_number: int | None = None
     modified: ExactUnixTimestamp
     modifier: GUID

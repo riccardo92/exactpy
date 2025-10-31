@@ -1,6 +1,6 @@
 from typing import Annotated, List
 
-from pydantic import BeforeValidator
+from pydantic import BeforeValidator, Field
 
 from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.models.financial import DeductibilityPercentageModel
@@ -37,7 +37,7 @@ class GLAccountModel(ExactOnlineBaseModel):
     custom_field: str | None = None
     deductibility_percentages: Annotated[
         List[DeductibilityPercentageModel], BeforeValidator(nested_results_validator)
-    ] = []
+    ] = Field(default=[], exclude=True)
     description: str | None = None
     division: int | None = None
     exclude_vat__listing: int | None = None

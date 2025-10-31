@@ -52,6 +52,18 @@ If you discover bugs or other issues, please create an issue with a stack trace 
 
 Currently available packages aren't configurable in such a way that they are usable to me. This package attempts to fix that.
 
+## Good to know
+
+This package uses Pydantic's `BaseModel` (well, actually `sparkdantic.SparkModel`, but that is derived from `BaseModel`) as model base classes. Field names _do not_ correspond exactly to Exact Online API field names. ExactOnline uses a special type of pascal case. This means that all words are capitalized, like in regular pascal case. It differs in the way it handles acryonyms. For example, `user_id` (snake case) would normally become `UserId` in pascal case. In Exact Online syntax, this becomes `UserID`.
+
+Similarly, for longer acronyms such as the one found in `oid_connect`, this will become `OIDConnect` in Exact Online syntax.
+
+Because Pydantic is very pythonic, it's customary to use snake case for property (field) names. Here's is the issue with that: when converting pascal case from the Exact Online API responses to snake case, information is lost. For example: `UserID` will be come `user_id` when using e.g. Pydantic's `to_pascal` validation. To solve this, a special type of snake case is used in the `exactpy`'s model definition. Every acronym is suffixed with a double underscore `__`, which tells the validator to capitalizer every single letter before the underscore, until it hits the beginning of the string or another underscore.
+
+As an example: Exact Online's field with name `GLAccountID` is defined in our models as `gl__acount_id__`.
+
+One exception is the `id` field in every model, which is always completely capitalized. The reason for this, is that it's so common, it would be a waste of time to double underscore it in every single model.
+
 ## Sample usage
 
 ### Initial oauth token request

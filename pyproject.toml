@@ -11,10 +11,14 @@ dependencies = [
     "loguru>=0.7.3",
     "pydantic>=2.12.0",
     "requests-oauthlib>=2.0.0",
+    "sparkdantic>=2.6.0",
 ]
 
 [project.optional-dependencies]
 pandas = []
+pyspark = [
+    "pyspark>=4.0.1",
+]
 
 [dependency-groups]
 dev = []
