@@ -13,11 +13,11 @@ from exactpy.types import (
 class ReturnModel(ExactOnlineBaseModel):
     document_id: GUID
     amount: float | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="str")
+    created: ExactUnixTimestamp = SparkField(spark_type="string")
     currency: str | None = None
     description: str | None = None
     document_view_url: str | None = None
-    due_date: ExactUnixTimestamp = SparkField(spark_type="str")
+    due_date: ExactUnixTimestamp = SparkField(spark_type="string")
     frequency: ReturnFrequencyEnum
     payroll_declaration_type: str | None = None
     period: int | None = None

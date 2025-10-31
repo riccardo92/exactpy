@@ -15,7 +15,7 @@ class BankAccountModel(ExactOnlineBaseModel):
     bank_name: str | None = None
     bic__code: str | None = None
     blocked: bool | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="str")
+    created: ExactUnixTimestamp = SparkField(spark_type="string")
     creator: GUID
     creator_full_name: str | None = None
     description: str | None = None
@@ -23,7 +23,7 @@ class BankAccountModel(ExactOnlineBaseModel):
     format: str | None = None
     iban__: str | None = None
     main: bool | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="str")
+    modified: ExactUnixTimestamp = SparkField(spark_type="string")
     modifier: GUID
     modifier_full_name: str | None = None
     payment_service_account: GUID

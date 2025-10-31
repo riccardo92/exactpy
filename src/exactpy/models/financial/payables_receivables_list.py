@@ -19,10 +19,10 @@ class PayablesReceivablesListModel(ExactOnlineBaseModel):
     approval_status: ApprovalStatusEnum | None
     currency_code: str | None = None
     description: str | None = None
-    due_date: ExactUnixTimestamp = SparkField(spark_type="str")
+    due_date: ExactUnixTimestamp = SparkField(spark_type="string")
     entry_number: int | None = None
     id: GUID | None
-    invoice_date: ExactUnixTimestamp = SparkField(spark_type="str")
+    invoice_date: ExactUnixTimestamp = SparkField(spark_type="string")
     invoice_number: int | None = None
     journal_code: str | None = None
     journal_description: str | None = None
