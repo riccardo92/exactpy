@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
-from pydantic import BeforeValidator, Field
+from pydantic import BeforeValidator
+from sparkdantic import SparkField
 
 from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.models.financial import DeductibilityPercentageModel
@@ -31,20 +32,20 @@ class GLAccountModel(ExactOnlineBaseModel):
     costcenter_description: str | None = None
     costunit: str | None = None
     costunit_description: str | None = None
-    created: ExactUnixTimestamp
+    created: ExactUnixTimestamp = SparkField(spark_type="str")
     creator: GUID
     creator_full_name: str | None = None
     custom_field: str | None = None
     deductibility_percentages: Annotated[
         List[DeductibilityPercentageModel], BeforeValidator(nested_results_validator)
-    ] = Field(default=[], exclude=True)
+    ] = SparkField(default=[], exclude=True)
     description: str | None = None
     division: int | None = None
     exclude_vat__listing: int | None = None
     expense_non_deductible_percentage: float | None = None
     is_blocked: bool | None = None
     matching: bool | None = None
-    modified: ExactUnixTimestamp
+    modified: ExactUnixTimestamp = SparkField(spark_type="str")
     modifier: GUID
     modifier_full_name: str | None = None
     private_gl__account: GUID
