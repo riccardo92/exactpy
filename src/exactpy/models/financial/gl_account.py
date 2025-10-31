@@ -32,7 +32,7 @@ class GLAccountModel(ExactOnlineBaseModel):
     costcenter_description: str | None = None
     costunit: str | None = None
     costunit_description: str | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="str")
+    created: ExactUnixTimestamp = SparkField(spark_type="string")
     creator: GUID
     creator_full_name: str | None = None
     custom_field: str | None = None
@@ -45,7 +45,7 @@ class GLAccountModel(ExactOnlineBaseModel):
     expense_non_deductible_percentage: float | None = None
     is_blocked: bool | None = None
     matching: bool | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="str")
+    modified: ExactUnixTimestamp = SparkField(spark_type="string")
     modifier: GUID
     modifier_full_name: str | None = None
     private_gl__account: GUID
