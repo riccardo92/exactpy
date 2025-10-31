@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **models**: made exact_unix_transformer context aware, spark output is now timestamp insetad of str
+
 ## 0.0.13 (2025-10-31)
 
 ### Fix
