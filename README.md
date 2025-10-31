@@ -58,7 +58,7 @@ This package uses Pydantic's `BaseModel` (well, actually `sparkdantic.SparkModel
 
 Similarly, for longer acronyms such as the one found in `oid_connect`, this will become `OIDConnect` in Exact Online syntax.
 
-Because Pydantic is very pythonic, it's customary to use snake case a property (field) names. Here's is the issue with that: when converting pascal case from the Exact Online API responses to snake case, information is lost. For example: `UserID` will be come `user_id` when using e.g. Pydantic's `to_pascal` validation. To solve this, a special type of snake case is used in the `exactpy`'s model definition. Every acronym is suffixed with a double underscore `__`, which tells the validator to capitalizer every single letter before the underscore, until it hits the beginning of the string or another underscore.
+Because Pydantic is very pythonic, it's customary to use snake case for property (field) names. Here's is the issue with that: when converting pascal case from the Exact Online API responses to snake case, information is lost. For example: `UserID` will be come `user_id` when using e.g. Pydantic's `to_pascal` validation. To solve this, a special type of snake case is used in the `exactpy`'s model definition. Every acronym is suffixed with a double underscore `__`, which tells the validator to capitalizer every single letter before the underscore, until it hits the beginning of the string or another underscore.
 
 As an example: Exact Online's field with name `GLAccountID` is defined in our models as `gl__acount_id__`.
 
