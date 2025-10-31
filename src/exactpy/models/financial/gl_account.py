@@ -42,14 +42,16 @@ class GLAccountModel(ExactOnlineBaseModel):
     description: str | None = None
     division: int | None = None
     exclude_vat__listing: int | None = None
-    expense_non_deductible_percentage: float | None = None
+    expense_non_deductible_percentage: float | None = SparkField(
+        spark_type="double", default=None
+    )
     is_blocked: bool | None = None
     matching: bool | None = None
     modified: ExactUnixTimestamp = SparkField(spark_type="string")
     modifier: GUID
     modifier_full_name: str | None = None
     private_gl__account: GUID
-    private_percentage: float | None = None
+    private_percentage: float | None = SparkField(spark_type="double", default=None)
     reporting_code: str | None = None
     revalue_currency: bool | None = None
     search_code: str | None = None

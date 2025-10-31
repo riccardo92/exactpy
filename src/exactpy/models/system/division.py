@@ -46,7 +46,7 @@ class DivisionModel(ExactOnlineBaseModel):
     division_move_date: ExactUnixTimestamp = SparkField(spark_type="string")
     email: str | None = None
     fax: str | None = None
-    hid: int | None = None
+    hid: int | None = SparkField(spark_type="long", default=None)
     is_dossier_division: bool | None = None
     is_hr__division: bool | None = None
     is_main_division: bool | None = None
