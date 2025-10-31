@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **models**: added specific coercions for division and gl_account models for long and double types in spark schema
+
 ## 0.0.12 (2025-10-31)
 
 ### Fix
