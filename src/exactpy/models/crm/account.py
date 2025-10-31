@@ -1,3 +1,5 @@
+from sparkdantic import SparkField
+
 from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.types import GUID, ExactUnixTimestamp
 
@@ -36,19 +38,19 @@ class AccountModel(ExactOnlineBaseModel):
     code_at_supplier: str | None = None
     company_size: str | None = None
     consolidation_scenario: int | None = None
-    controlled_date: ExactUnixTimestamp
+    controlled_date: ExactUnixTimestamp = SparkField(spark_type="str")
     cost_center: str | None = None
     cost_center_description: str | None = None
     cost_paid: int | None = None
     country: str | None = None
     country_name: str | None = None
-    created: ExactUnixTimestamp
+    created: ExactUnixTimestamp = SparkField(spark_type="str")
     creator: GUID
     creator_full_name: str | None = None
     credit_line_purchase: float | None = None
     credit_line_sales: float | None = None
     currency: str | None = None
-    customer_since: ExactUnixTimestamp
+    customer_since: ExactUnixTimestamp = SparkField(spark_type="str")
     custom_field: str | None = None
     datev_creditor_code: str | None = None
     datev_debtor_code: str | None = None
@@ -60,9 +62,9 @@ class AccountModel(ExactOnlineBaseModel):
     duns_number: str | None = None
     email: str | None = None
     enable_sales_payment_link: bool | None = None
-    end_date: ExactUnixTimestamp
+    end_date: ExactUnixTimestamp = SparkField(spark_type="str")
     eori__number: str | None = None
-    established_date: ExactUnixTimestamp
+    established_date: ExactUnixTimestamp = SparkField(spark_type="str")
     fax: str | None = None
     gl__account_purchase: GUID
     gl__account_sales: GUID
@@ -112,7 +114,7 @@ class AccountModel(ExactOnlineBaseModel):
     logo_url: str | None = None
     longitude: float | None = None
     main_contact: GUID
-    modified: ExactUnixTimestamp
+    modified: ExactUnixTimestamp = SparkField(spark_type="str")
     modifier: GUID
     modifier_full_name: str | None = None
     name: str | None = None
@@ -153,11 +155,11 @@ class AccountModel(ExactOnlineBaseModel):
     shipping_lead_days: int
     shipping_method: GUID
     show_remark_for_sales: bool | None = None
-    start_date: ExactUnixTimestamp
+    start_date: ExactUnixTimestamp = SparkField(spark_type="str")
     state: str | None = None
     state_name: str | None = None
     status: str | None = None
-    status_since: ExactUnixTimestamp
+    status_since: ExactUnixTimestamp = SparkField(spark_type="str")
     trade_name: str | None = None
     type: str | None = None
     unique_taxpayer_reference: str | None = None

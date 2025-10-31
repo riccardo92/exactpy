@@ -1,3 +1,5 @@
+from sparkdantic import SparkField
+
 from exactpy.models.base import ExactOnlineBaseModel
 from exactpy.types import (
     GUID,
@@ -11,11 +13,11 @@ from exactpy.types import (
 class ReturnModel(ExactOnlineBaseModel):
     document_id: GUID
     amount: float | None = None
-    created: ExactUnixTimestamp
+    created: ExactUnixTimestamp = SparkField(spark_type="str")
     currency: str | None = None
     description: str | None = None
     document_view_url: str | None = None
-    due_date: ExactUnixTimestamp
+    due_date: ExactUnixTimestamp = SparkField(spark_type="str")
     frequency: ReturnFrequencyEnum
     payroll_declaration_type: str | None = None
     period: int | None = None
