@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **models**: timestamp col string coercion for spark, now with right format
+
 ## 0.0.11 (2025-10-31)
 
 ### Fix
