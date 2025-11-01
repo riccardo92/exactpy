@@ -15,7 +15,7 @@ class DivisionModel(ExactOnlineBaseModel):
     address_line1: str | None = None
     address_line2: str | None = None
     address_line3: str | None = None
-    archive_date: ExactUnixTimestamp = SparkField(spark_type="string")
+    archive_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     blocking_status: BlockingStatusEnum
     business_type_code: str | None = None
     business_type_description: str | None = None
@@ -31,7 +31,7 @@ class DivisionModel(ExactOnlineBaseModel):
     company_size_code: str | None = None
     company_size_description: str | None = None
     country: str | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="string")
+    created: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     creator: GUID
     creator_full_name: str | None = None
     currency: str | None = None
@@ -42,8 +42,10 @@ class DivisionModel(ExactOnlineBaseModel):
     datev_accountant_number: str | None = None
     datev_client_number: str | None = None
     description: str | None = None
-    division_hr__link_unlink_date: ExactUnixTimestamp = SparkField(spark_type="string")
-    division_move_date: ExactUnixTimestamp = SparkField(spark_type="string")
+    division_hr__link_unlink_date: ExactUnixTimestamp = SparkField(
+        spark_type="timestamp"
+    )
+    division_move_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     email: str | None = None
     fax: str | None = None
     hid: int | None = SparkField(spark_type="long", default=None)
@@ -52,7 +54,7 @@ class DivisionModel(ExactOnlineBaseModel):
     is_main_division: bool | None = None
     is_practice_division: bool | None = None
     legislation: str | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="string")
+    modified: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     modifier: GUID
     modifier_full_name: str | None = None
     ob__number: str | None = None
@@ -64,7 +66,7 @@ class DivisionModel(ExactOnlineBaseModel):
     sector_description: str | None = None
     share_capital: float | None = None
     siret_number: str | None = None
-    start_date: ExactUnixTimestamp = SparkField(spark_type="string")
+    start_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     state: str | None = None
     status: DivisionStatusEnum
     subsector_code: str | None = None

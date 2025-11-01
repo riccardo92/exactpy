@@ -133,7 +133,7 @@ class AccountModel(ExactOnlineBaseModel):
     logo_url: str | None = SparkField(spark_type="string", default=None)
     longitude: float | None = SparkField(spark_type="float", default=None)
     main_contact: GUID = SparkField(spark_type="string")
-    modified: ExactUnixTimestamp = SparkField(spark_type="string")
+    modified: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     modifier: GUID = SparkField(spark_type="string")
     modifier_full_name: str | None = SparkField(spark_type="string", default=None)
     name: str | None = SparkField(spark_type="string", default=None)

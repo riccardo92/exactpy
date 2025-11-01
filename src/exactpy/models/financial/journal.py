@@ -27,7 +27,7 @@ class JournalModel(ExactOnlineBaseModel):
     bank_account_use_sepa_direct_debit: bool | None = None
     bank_name: str | None = None
     code: str | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="string")
+    created: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     creator: GUID
     creator_full_name: str | None = None
     currency: str | None = None
@@ -40,7 +40,7 @@ class JournalModel(ExactOnlineBaseModel):
     gl__account_description: str | None = None
     gl__account_type: GLAccountTypeEnum
     is_blocked: bool | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="string")
+    modified: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     modifier: GUID
     modifier_full_name: str | None = None
     payment_in_transit_account: GUID

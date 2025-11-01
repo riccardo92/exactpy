@@ -5,18 +5,22 @@ from exactpy.types import GUID, ExactUnixTimestamp
 
 
 class DeductibilityPercentageModel(ExactOnlineBaseModel):
-    id: GUID
-    created: ExactUnixTimestamp = SparkField(spark_type="string")
-    creator: GUID
-    creator_full_name: str | None = None
-    division: int | None = None
-    end_date: ExactUnixTimestamp = SparkField(spark_type="string")
-    expense_non_deductible_percentage: float | None = None
+    id: GUID = SparkField(spark_type="string")
+    created: ExactUnixTimestamp = SparkField(spark_type="timestamp")
+    creator: GUID = SparkField(spark_type="string")
+    creator_full_name: str | None = SparkField(spark_type="string", default=None)
+    division: int | None = SparkField(spark_type="integer", default=None)
+    end_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
+    expense_non_deductible_percentage: float | None = SparkField(
+        spark_type="float", default=None
+    )
     gl__account: GUID
-    line_number: int | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="string")
+    line_number: int | None = SparkField(spark_type="integer", default=None)
+    modified: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     modifier: GUID
-    modifier_full_name: str | None = None
-    private_use_percentage: float | None = None
-    start_date: ExactUnixTimestamp = SparkField(spark_type="string")
-    vat__non_deductible_percentage: float | None = None
+    modifier_full_name: str | None = SparkField(spark_type="string", default=None)
+    private_use_percentage: float | None = SparkField(spark_type="float", default=None)
+    start_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
+    vat__non_deductible_percentage: float | None = SparkField(
+        spark_type="float", default=None
+    )
