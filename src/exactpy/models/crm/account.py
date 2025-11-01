@@ -3,7 +3,7 @@ from typing import List
 from sparkdantic import SparkField
 
 from exactpy.models.base import ExactOnlineBaseModel
-from exactpy.models.crm import BankAccountModel
+from exactpy.models.crm.bank_account import BankAccountModel
 from exactpy.types import GUID, ExactUnixTimestamp
 
 
@@ -71,7 +71,7 @@ class AccountModel(ExactOnlineBaseModel):
     duns_number: str | None = SparkField(spark_type="string", default=None)
     email: str | None = SparkField(spark_type="string", default=None)
     enable_sales_payment_link: bool | None = SparkField(
-        spark_type="bool", default=False
+        spark_type="boolean", default=False
     )
     end_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     eori__number: str | None = SparkField(spark_type="string", default=None)
@@ -83,9 +83,9 @@ class AccountModel(ExactOnlineBaseModel):
     glar__: GUID = SparkField(spark_type="string")
     gln_number: str | None = SparkField(spark_type="string", default=None)
     has_withholding_tax_sales: bool | None = SparkField(
-        spark_type="bool", default=False
+        spark_type="boolean", default=False
     )
-    ignore_datev_warning_message: bool = SparkField(spark_type="bool", default=False)
+    ignore_datev_warning_message: bool = SparkField(spark_type="boolean", default=False)
     incoterm_address_purchase: str | None = SparkField(
         spark_type="string", default=None
     )
@@ -112,16 +112,16 @@ class AccountModel(ExactOnlineBaseModel):
     is_accountant: int | None = SparkField(spark_type="integer", default=None)
     is_agency: int | None = SparkField(spark_type="integer", default=None)
     is_anonymised: int | None = SparkField(spark_type="integer", default=None)
-    is_bank: bool = SparkField(spark_type="bool", default=False)
+    is_bank: bool = SparkField(spark_type="boolean", default=False)
     is_competitor: int | None = SparkField(spark_type="integer", default=None)
-    is_extra_duty: bool | None = SparkField(spark_type="bool", default=False)
+    is_extra_duty: bool | None = SparkField(spark_type="boolean", default=False)
     is_mailing: int | None = SparkField(spark_type="integer", default=None)
-    is_member: bool = SparkField(spark_type="bool", default=False)
-    is_pilot: bool = SparkField(spark_type="bool", default=False)
-    is_purchase: bool = SparkField(spark_type="bool", default=False)
-    is_reseller: bool = SparkField(spark_type="bool", default=False)
-    is_sales: bool = SparkField(spark_type="bool", default=False)
-    is_supplier: bool = SparkField(spark_type="bool", default=False)
+    is_member: bool = SparkField(spark_type="boolean", default=False)
+    is_pilot: bool = SparkField(spark_type="boolean", default=False)
+    is_purchase: bool = SparkField(spark_type="boolean", default=False)
+    is_reseller: bool = SparkField(spark_type="boolean", default=False)
+    is_sales: bool = SparkField(spark_type="boolean", default=False)
+    is_supplier: bool = SparkField(spark_type="boolean", default=False)
     language: str | None = SparkField(spark_type="string", default=None)
     language_description: str | None = SparkField(spark_type="string", default=None)
     latitude: float | None = SparkField(spark_type="float", default=None)
@@ -165,7 +165,7 @@ class AccountModel(ExactOnlineBaseModel):
     purchase_vat_code_description: str | None = SparkField(
         spark_type="string", default=None
     )
-    recepient_of_commissions: bool = SparkField(spark_type="bool", default=False)
+    recepient_of_commissions: bool = SparkField(spark_type="boolean", default=False)
     remarks: str | None = SparkField(spark_type="string", default=None)
     reseller: GUID = SparkField(spark_type="string")
     reseller_code: str | None = SparkField(spark_type="string", default=None)
@@ -191,7 +191,7 @@ class AccountModel(ExactOnlineBaseModel):
     )
     shipping_lead_days: int | None = SparkField(spark_type="integer", default=None)
     shipping_method: GUID = SparkField(spark_type="string")
-    show_remark_for_sales: bool | None = SparkField(spark_type="bool", default=False)
+    show_remark_for_sales: bool | None = SparkField(spark_type="boolean", default=False)
     start_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     state: str | None = SparkField(spark_type="string", default=None)
     state_name: str | None = SparkField(spark_type="string", default=None)
