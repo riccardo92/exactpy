@@ -5,27 +5,27 @@ from exactpy.types import GUID, BankAcountTypeEnum, ExactUnixTimestamp
 
 
 class BankAccountModel(ExactOnlineBaseModel):
-    id: GUID
-    account: GUID
-    account_name: str | None = None
-    bank: GUID
-    bank_account: str | None = None
-    bank_account_holder_name: str | None = None
-    bank_description: str | None = None
-    bank_name: str | None = None
-    bic__code: str | None = None
-    blocked: bool | None = None
-    created: ExactUnixTimestamp = SparkField(spark_type="string")
-    creator: GUID
-    creator_full_name: str | None = None
-    description: str | None = None
-    division: int | None = None
-    format: str | None = None
-    iban__: str | None = None
-    main: bool | None = None
-    modified: ExactUnixTimestamp = SparkField(spark_type="string")
-    modifier: GUID
-    modifier_full_name: str | None = None
-    payment_service_account: GUID
-    type: BankAcountTypeEnum | None
-    type_description: str | None = None
+    id: GUID = SparkField(spark_type="string")
+    account: GUID = SparkField(spark_type="string")
+    account_name: str | None = SparkField(spark_type="string", default=None)
+    bank: GUID = SparkField(spark_type="string")
+    bank_account: str | None = SparkField(spark_type="string", default=None)
+    bank_account_holder_name: str | None = SparkField(spark_type="string", default=None)
+    bank_description: str | None = SparkField(spark_type="string", default=None)
+    bank_name: str | None = SparkField(spark_type="string", default=None)
+    bic__code: str | None = SparkField(spark_type="string", default=None)
+    blocked: bool | None = SparkField(spark_type="string", default=None)
+    created: ExactUnixTimestamp = SparkField(spark_type="timestamp")
+    creator: GUID = SparkField(spark_type="string")
+    creator_full_name: str | None = SparkField(spark_type="string", default=None)
+    description: str | None = SparkField(spark_type="string", default=None)
+    division: int | None = SparkField(spark_type="string", default=None)
+    format: str | None = SparkField(spark_type="string", default=None)
+    iban__: str | None = SparkField(spark_type="string", default=None)
+    main: bool | None = SparkField(spark_type="string", default=None)
+    modified: ExactUnixTimestamp = SparkField(spark_type="timestamp")
+    modifier: GUID = SparkField(spark_type="string")
+    modifier_full_name: str | None = SparkField(spark_type="string", default=None)
+    payment_service_account: GUID = SparkField(spark_type="string")
+    type: BankAcountTypeEnum | None = SparkField(spark_type="integer")
+    type_description: str | None = SparkField(spark_type="string", default=None)
