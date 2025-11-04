@@ -27,5 +27,5 @@ class BankAccountModel(ExactOnlineBaseModel):
     modifier: GUID = SparkField(spark_type="string")
     modifier_full_name: str | None = SparkField(spark_type="string", default=None)
     payment_service_account: GUID = SparkField(spark_type="string")
-    type: BankAcountTypeEnum = SparkField(spark_type="string")
+    type: BankAcountTypeEnum | None = SparkField(spark_type="string", default=None)
     type_description: str | None = SparkField(spark_type="string", default=None)

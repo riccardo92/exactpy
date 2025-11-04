@@ -20,7 +20,9 @@ class OfficialReturnModel(ExactOnlineBaseModel):
     division: int | None = SparkField(spark_type="integer", default=None)
     document: GUID = SparkField(spark_type="string")
     document_subject: str | None = SparkField(spark_type="string", default=None)
-    frequency: JournalFrequencyEnum = SparkField(spark_type="integer")
+    frequency: JournalFrequencyEnum | None = SparkField(
+        spark_type="integer", default=None
+    )
     is_correction: int | None = SparkField(spark_type="integer", default=None)
     modified: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     modifier: GUID = SparkField(spark_type="string")
@@ -31,7 +33,7 @@ class OfficialReturnModel(ExactOnlineBaseModel):
     presentation_file: bytes | None = SparkField(spark_type="binary", default=None)
     presentation_file_name: str | None = SparkField(spark_type="string", default=None)
     reference: str | None = SparkField(spark_type="string", default=None)
-    source: ReturnSourceEnum = SparkField(spark_type="integer")
+    source: ReturnSourceEnum | None = SparkField(spark_type="integer", default=None)
     status: int | None = SparkField(spark_type="integer", default=None)
     type: int | None = SparkField(spark_type="integer", default=None)
     type_description: str | None = SparkField(spark_type="string", default=None)

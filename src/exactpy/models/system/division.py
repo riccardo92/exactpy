@@ -16,7 +16,9 @@ class DivisionModel(ExactOnlineBaseModel):
     address_line2: str | None = SparkField(spark_type="string", default=None)
     address_line3: str | None = SparkField(spark_type="string", default=None)
     archive_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
-    blocking_status: BlockingStatusEnum = SparkField(spark_type="integer")
+    blocking_status: BlockingStatusEnum | None = SparkField(
+        spark_type="integer", default=None
+    )
     business_type_code: str | None = SparkField(spark_type="string", default=None)
     business_type_description: str | None = SparkField(
         spark_type="string", default=None
@@ -74,7 +76,7 @@ class DivisionModel(ExactOnlineBaseModel):
     siret_number: str | None = SparkField(spark_type="string", default=None)
     start_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     state: str | None = SparkField(spark_type="string", default=None)
-    status: DivisionStatusEnum = SparkField(spark_type="integer")
+    status: DivisionStatusEnum | None = SparkField(spark_type="integer", default=None)
     subsector_code: str | None = SparkField(spark_type="string", default=None)
     subsector_description: str | None = SparkField(spark_type="string", default=None)
     tax_office_number: str | None = SparkField(spark_type="string", default=None)

@@ -40,7 +40,9 @@ class JournalModel(ExactOnlineBaseModel):
     gl__account: GUID = SparkField(spark_type="string")
     gl__account_code: str | None = SparkField(spark_type="string", default=None)
     gl__account_description: str | None = SparkField(spark_type="string", default=None)
-    gl__account_type: GLAccountTypeEnum = SparkField(spark_type="integer")
+    gl__account_type: GLAccountTypeEnum | None = SparkField(
+        spark_type="integer", default=None
+    )
     is_blocked: bool | None = None
     modified: ExactUnixTimestamp = SparkField(spark_type="timestamp")
     modifier: GUID = SparkField(spark_type="string")
@@ -55,4 +57,4 @@ class JournalModel(ExactOnlineBaseModel):
     payment_service_provider_name: str | None = SparkField(
         spark_type="string", default=None
     )
-    type: JournalTypeEnum = SparkField(spark_type="integer")
+    type: JournalTypeEnum | None = SparkField(spark_type="integer", default=None)

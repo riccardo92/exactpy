@@ -16,7 +16,9 @@ class PayablesReceivablesListModel(ExactOnlineBaseModel):
     account_name: str | None = SparkField(spark_type="string", default=None)
     amount: float | None = SparkField(spark_type="float", default=None)
     amount_in_transit: float | None = SparkField(spark_type="float", default=None)
-    approval_status: ApprovalStatusEnum = SparkField(spark_type="integer")
+    approval_status: ApprovalStatusEnum | None = SparkField(
+        spark_type="integer", default=None
+    )
     currency_code: str | None = SparkField(spark_type="string", default=None)
     description: str | None = SparkField(spark_type="string", default=None)
     due_date: ExactUnixTimestamp = SparkField(spark_type="timestamp")

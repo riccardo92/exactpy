@@ -9,7 +9,7 @@ class ReportingBalanceByClassificationModel(ExactOnlineBaseModel):
     amount: float | None = SparkField(spark_type="float", default=None)
     amount_credit: float | None = SparkField(spark_type="float", default=None)
     amount_debit: float | None = SparkField(spark_type="float", default=None)
-    balance_type: BalanceTypeEnum = SparkField(spark_type="string")
+    balance_type: BalanceTypeEnum | None = SparkField(spark_type="string", default=None)
     classification_code: str | None = SparkField(spark_type="string", default=None)
     classification_description: str | None = SparkField(
         spark_type="string", default=None
@@ -26,5 +26,7 @@ class ReportingBalanceByClassificationModel(ExactOnlineBaseModel):
     gl__scheme: GUID = SparkField(spark_type="string")
     reporting_period: int | None = SparkField(spark_type="integer", default=None)
     reporting_year: int | None = SparkField(spark_type="integer", default=None)
-    status: ReportingBalanceStatusEnum = SparkField(spark_type="integer")
+    status: ReportingBalanceStatusEnum | None = SparkField(
+        spark_type="integer", default=None
+    )
     type: int | None = SparkField(spark_type="integer", default=None)
