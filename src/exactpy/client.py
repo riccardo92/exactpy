@@ -339,10 +339,11 @@ class Client:
         url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
         req = httpx.get(url=url, headers=headers)
-        print(req.content)
-        req.raise_for_status()
         self._update_rate_limits(req.headers)
-
+        if req.status_code != 200:
+            logger.error(f"Request failed with status code {req.status_code} Content:")
+            print(req.content)
+            req.raise_for_status()
         return req
 
     def show(
@@ -388,9 +389,11 @@ class Client:
         url += ("", f"&$expand={parsed_expand}")[len(expand) > 0]
 
         req = httpx.get(url=url, headers=headers)
-        req.raise_for_status()
         self._update_rate_limits(req.headers)
-
+        if req.status_code != 200:
+            logger.error(f"Request failed with status code {req.status_code} Content:")
+            print(req.content)
+            req.raise_for_status()
         return req
 
     def _setup_namespaces_and_controllers(self):
