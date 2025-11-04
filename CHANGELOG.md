@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **client.py**: bugfix in space separation empty filter operator
+
 ## 0.0.14 (2025-11-04)
 
 ### Fix
