@@ -4,6 +4,14 @@
 
 ### Fix
 
+- **models**: made all enum types nullable
+- **models**: added spark fields for all remaining model fields for all models
+- **models**: added spark fields deductibility percentage model
+- **models**: added spark fields aging paybles receivables list model
+- **models**: added spark fields bank account model
+- **models**: import bug fix account model
+- **models**: added spark fields account model
+- **models**: added spark fields aging overview model
 - **models**: made exact_unix_transformer context aware, spark output is now timestamp insetad of str
 
 ## 0.0.13 (2025-10-31)
