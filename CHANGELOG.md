@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **client.py**: print contents only when request failed
+- **client.py**: fix in client api method error prints
+
 ## 0.0.15 (2025-11-04)
 
 ### Fix
