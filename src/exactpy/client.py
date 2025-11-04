@@ -200,8 +200,8 @@ class Client:
                 or isinstance(val, int)
                 else "'"
             )
-            pref = ("", op)[len(parsed_filters) > 0]
-            parsed_filters.append(f" {pref} {key} eq {qu}{val}{qu}")
+            pref = ("", f" {op} ")[len(parsed_filters) > 0]
+            parsed_filters.append(f"{pref}{key} eq {qu}{val}{qu}")
 
         return ",".join(parsed_filters)
 
