@@ -1,6 +1,6 @@
 # ExactPy
 
-A modern, highly configurable Python interface to the Exact Online API based on `Pydantic` and `httpx` and offers support for conversion to Pandas DataFrames.
+A modern, highly configurable Python interface to the Exact Online API based on `Pydantic` and `httpx` and integrates with `sparkdantic` to make it easy to convert your data to `(py)spark` dataframes.
 
 For now, this package _does not_ provide any controller methods `POST` and `PUT` calls; it's basically read-only. This will be added later.
 
