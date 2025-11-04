@@ -1,6 +1,8 @@
 # ExactPy
 
-A modern, highly configurable Python interface to the Exact Online API based on `Pydantic` and `httpx` and offers support for conversion to Pandas DataFrames.
+A modern, highly configurable Python interface to the Exact Online API based on `Pydantic` and `httpx` and integrates with `sparkdantic` to make it easy to convert your data to `(py)spark` dataframes.
+
+For now, this package _does not_ provide any controller methods `POST` and `PUT` calls; it's basically read-only. This will be added later.
 
 ## Installing
 
@@ -53,6 +55,22 @@ If you discover bugs or other issues, please create an issue with a stack trace 
 Currently available packages aren't configurable in such a way that they are usable to me. This package attempts to fix that.
 
 ## Good to know
+
+### Spark and context aware serialization
+
+This package provides support for conversion to Spark dataframes indirectly, by using `SparkModel` instead of `BaseModel`, Spark schemas can be generated from models (see also: https://github.com/mitchelllisle/sparkdantic) by callign e.g. `exactpy.models.financial.GLAccountModel.model_spark_schema()`.
+
+The types used in `OData` are a bit unusual in some cases. The timestamp type is a string with a timestamp in millisecond precision embedded into it, for instance.
+
+For this reason, serialization output can be changed to be (among other things) `(py)spark` and `pandas` compatible. This can be done by passing a context to the serialization methods. One example:
+
+```python
+gl_account_instance.model_dump(by_alias=False, context={"output": "spark"})
+```
+
+For now, this does not change much (only timestamps are serialized as `datetime.datetime` instead of timestamp strings), but this might change in the future. Just pass `context={"output": "spark"}` in your serialization methods, and you're good.
+
+### Model field naming
 
 This package uses Pydantic's `BaseModel` (well, actually `sparkdantic.SparkModel`, but that is derived from `BaseModel`) as model base classes. Field names _do not_ correspond exactly to Exact Online API field names. ExactOnline uses a special type of pascal case. This means that all words are capitalized, like in regular pascal case. It differs in the way it handles acryonyms. For example, `user_id` (snake case) would normally become `UserId` in pascal case. In Exact Online syntax, this becomes `UserID`.
 
