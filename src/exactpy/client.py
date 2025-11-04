@@ -340,9 +340,10 @@ class Client:
 
         req = httpx.get(url=url, headers=headers)
         self._update_rate_limits(req.headers)
-        logger.error("Request failed. Content:")
-        print(req.content)
-        req.raise_for_status()
+        if req.status_code != 200:
+            logger.error(f"Request failed with status code {req.status_code} Content:")
+            print(req.content)
+            req.raise_for_status()
         return req
 
     def show(
@@ -389,9 +390,10 @@ class Client:
 
         req = httpx.get(url=url, headers=headers)
         self._update_rate_limits(req.headers)
-        logger.error("Request failed. Content:")
-        print(req.content)
-        req.raise_for_status()
+        if req.status_code != 200:
+            logger.error(f"Request failed with status code {req.status_code} Content:")
+            print(req.content)
+            req.raise_for_status()
         return req
 
     def _setup_namespaces_and_controllers(self):
