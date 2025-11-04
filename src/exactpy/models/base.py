@@ -14,4 +14,4 @@ class ExactOnlineBaseModel(SparkModel):
     )
 
     # Indicates what field is used as primary key
-    _pk: str | None = None
+    _pk: str | None
