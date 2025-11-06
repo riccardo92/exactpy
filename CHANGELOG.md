@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **controllers/base.py**: implemented a new all_paged method that's a page level generator
+- **utils**: added pydantic list validation func that allows skipping invalid inputs
+
 ## 0.0.16 (2025-11-04)
 
 ### Fix
