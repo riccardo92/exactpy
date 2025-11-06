@@ -182,6 +182,8 @@ class BaseController:
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
+                Note that `max_pages` will have no effect when top is set, because there is no
+                paging on the API side in that case.
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
         Returns:
@@ -335,6 +337,8 @@ class BaseController:
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
+                Note that `max_pages` will have no effect when top is set, because there is no
+                paging on the API side in that case.
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
         Returns:
