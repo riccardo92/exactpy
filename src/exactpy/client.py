@@ -338,6 +338,8 @@ class Client:
                 Defaults to None, meaning all records.
             inline_count (bool): Whether to include the inlinecount query arg; this will add
                 a `__count` property to the response body with a count of all records.
+                Note that if top is set, inline count isn't available and this argument will
+                do nothing.
             include_division (bool): Whether to include the current division in the url. Defaults to True.
             skip_token: (str, Optional): A skiptoken query arg, used for paging in the Exact Online
                 rest api. Defaults to None.
@@ -391,6 +393,7 @@ class Client:
         url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
 
         req = httpx.get(url=url, headers=headers)
+
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
             logger.error(f"Request failed with status code {req.status_code} Content:")

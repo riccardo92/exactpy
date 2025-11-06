@@ -189,6 +189,8 @@ class BaseController:
                 Defaults to None, meaning all records.
             inline_count (bool): Whether to include the inlinecount query arg; this will add
                 a `__count` property to the response body with a count of all records.
+                Note that if top is set, inline count isn't available and this argument will
+                do nothing.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
                 Note that `max_pages` will have no effect when top is set, because there is no
                 paging on the API side in that case.
@@ -237,6 +239,7 @@ class BaseController:
             select=parsed_select,
             expand=expand,
             top=top,
+            inline_count=inline_count,
         ).json()
 
         # If top is set, results are not in the sub key
@@ -257,7 +260,8 @@ class BaseController:
                 )
             for val_error in validation_errors:
                 logger.error(str(val_error))
-        if inline_count:
+
+        if inline_count and top is None:
             count = resp["d"]["__count"]
             yield results, count
         else:
@@ -287,6 +291,7 @@ class BaseController:
                 select=parsed_select,
                 expand=expand,
                 top=top,
+                inline_count=inline_count,
                 skip_token=skip_token,
             ).json()
 
@@ -311,7 +316,7 @@ class BaseController:
                 for val_error in validation_errors:
                     logger.error(str(val_error))
 
-            if inline_count:
+            if inline_count and top is None:
                 count = resp["d"]["__count"]
                 yield temp_results, count
             else:
@@ -360,6 +365,8 @@ class BaseController:
                 Defaults to None, meaning all records.
             inline_count (bool): Whether to include the inlinecount query arg; this will add
                 a `__count` property to the response body with a count of all records.
+                Note that if top is set, inline count isn't available and this argument will
+                do nothing.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
                 Note that `max_pages` will have no effect when top is set, because there is no
                 paging on the API side in that case.
@@ -373,7 +380,7 @@ class BaseController:
         results = []
         record_count = 0
 
-        if inline_count:
+        if inline_count and top is None:
             for page, count in self.all_paged(
                 query_args=query_args,
                 filters=filters,
