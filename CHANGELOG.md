@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **controllers/base.py**: implemented a new all_paged method that's a page level generator
+- **utils**: added pydantic list validation func that allows skipping invalid inputs
+
 ## 0.0.16 (2025-11-04)
 
 ### Fix
@@ -61,7 +68,7 @@
 - **controllers**: select now based on pydantic field names, and validation using dynamic partial models
 - **client.py**: bugfix numeric filtering
 - fixed some wrongly named properties in financial models
-- _pk now used as primary key for single object retrieval in show method
+- \_pk now used as primary key for single object retrieval in show method
 - **models/division**: date property fix
 - **client**: added division controller reference
 - **controllers**: implemented vision controller

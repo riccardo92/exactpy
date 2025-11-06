@@ -1,14 +1,23 @@
 from __future__ import annotations
 
 import typing
-from typing import TYPE_CHECKING, Annotated, Dict, List, Type, Union, get_origin
+from typing import (
+    TYPE_CHECKING,
+    Annotated,
+    Dict,
+    Generator,
+    List,
+    Type,
+    Union,
+    get_origin,
+)
 
 from loguru import logger
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel
 
 from exactpy.exceptions import NoFiltersSetException
 from exactpy.models.base import ExactOnlineBaseModel
-from exactpy.utils import create_partial_model
+from exactpy.utils import create_partial_model, list_model_validate
 
 if TYPE_CHECKING:
     from exactpy.client import Client
@@ -26,7 +35,6 @@ class BaseController:
         client: Client,
     ):
         self._client = client
-        self._list_adapter = TypeAdapter(List[self._model])
 
     def _check_query_args(
         self, query_args: Dict[str, Union[str, int, float]] = {}
@@ -94,6 +102,17 @@ class BaseController:
 
         return parsed_filters
 
+    def fields_to_aliases(self, fields: List[str]) -> List[str]:
+        """Convert list of field names into aliases.
+
+        Args:
+            fields (List[str]): List of model field names.
+
+        Returns:
+            List[str]: List of model field aliases.
+        """
+        return [self._model.model_fields[field].alias for field in fields]
+
     def _is_guid(self, key: str, model: Type[BaseModel]):
         is_guid = False
         pk_type = typing.get_type_hints(model, include_extras=True)[key]
@@ -138,14 +157,15 @@ class BaseController:
             extra="ignore",
         )
 
-    def all(
+    def all_paged(
         self,
         query_args: Dict[str, str] = {},
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
         expand: List[str] = [],
         max_pages: int = -1,
-    ) -> List[Type[ExactOnlineBaseModel]]:
+        skip_invalid: bool = True,
+    ) -> Generator[List[Type[ExactOnlineBaseModel]], None, None]:
         """Retrieve a collection of model instances using given
         filters.
 
@@ -159,12 +179,15 @@ class BaseController:
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
                 so Pascal case). Defaults to [].
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
-
+            skip_invalid (bool): Whether to not throw a validation error when encountering
+                an invalid input, but just skip it.
         Returns:
-            List[Type[ExactOnlineBaseModel]]: List of instances of a subclass of ExactOnlineBaseModel.
+            Generator[List[Type[ExactOnlineBaseModel]], None, None]: A page level generator that produces lists of instances of a subclass of ExactOnlineBaseModel.
         """
         if max_pages == 0:
             return []
+
+        page_count = 0
 
         # Check mandatory filters and query args
         parsed_filters = self._check_filters(filters=filters)
@@ -176,16 +199,18 @@ class BaseController:
 
         # Check if select cols are set. If so, we have to
         # generate a partial model with those fields.
-        list_adapter = self._list_adapter
+        model = self._model
         if len(select) > 0:
-            partial_model = create_partial_model(
+            model = create_partial_model(
                 model=self._model,
                 fields=select,
             )
-            list_adapter = TypeAdapter(List[partial_model])
 
         # Parse select cols into Exact Online naming (Pascal case)
-        parsed_select = [self._model.model_fields[field].alias for field in select]
+        parsed_select = self.fields_to_aliases(fields=select)
+
+        if self._client.verbose:
+            logger.info(f"Fetching page {page_count + 1}")
 
         # Initial get request to get first page
         resp = self._client.get(
@@ -197,14 +222,20 @@ class BaseController:
         ).json()
 
         # Convert to Pydantic
-        results = list_adapter.validate_python(resp["d"]["results"])
-
-        # print("***" * 100)
-        # pprint(resp["d"]["results"][0])
-        page_count = 0
+        results, validation_errors = list_model_validate(
+            model=model, raw_list=resp["d"]["results"], skip_invalid=skip_invalid
+        )
 
         if self._client.verbose:
-            logger.info(f"Fetched page {page_count + 1}")
+            if len(validation_errors) > 0:
+                logger.error(
+                    "Some input was not validated correctly and those instances were skipped."
+                )
+            for val_error in validation_errors:
+                logger.error(str(val_error))
+
+        yield results
+
         while (next_url := resp["d"].get("__next")) is not None:
             page_count += 1
             if max_pages != -1 and page_count + 1 > max_pages:
@@ -227,13 +258,62 @@ class BaseController:
             ).json()
 
             # Convert to Pydantic
-            temp_results = list_adapter.validate_python(
-                resp["d"]["results"], extra="ignore"
+            temp_results, validation_errors = list_model_validate(
+                model=model,
+                raw_list=resp["d"]["results"],
+                skip_invalid=skip_invalid,
             )
-            results.extend(temp_results)
+
+            if self._client.verbose:
+                if len(validation_errors) > 0:
+                    logger.error(
+                        "Some input was not validated correctly and those instances were skipped."
+                    )
+                for val_error in validation_errors:
+                    logger.error(str(val_error))
+
+            yield temp_results
 
         if self._client.verbose:
             logger.info(f"Fetched a total of {len(results)} records.")
 
-        # Or return a list
+    def all(
+        self,
+        query_args: Dict[str, str] = {},
+        filters: Dict[str, Union[str, int, float]] = {},
+        select: List[str] = [],
+        expand: List[str] = [],
+        max_pages: int = -1,
+        skip_invalid: bool = True,
+    ) -> List[Type[ExactOnlineBaseModel]]:
+        """This is a convenience method, that just collects all pages
+        for all_paged into a single list. This might be convenient
+        in some cases where there aren't that many results or where
+        memory isn't an issue.
+
+        Args:
+            query_args (Dict[str, str]): A dictionary of
+                query arg name and value key pairs to send to the endpoint. Defaults to {}.
+            filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key,
+                value pairs. Defaults to {}
+            select (List[str], optional): Attributes to select (in Exact Online naming,
+                so Pascal case). Defaults to [].
+            expand (List[str], optional): Attributes to expand (in Exact Online naming,
+                so Pascal case). Defaults to [].
+            max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
+            skip_invalid (bool): Whether to not throw a validation error when encountering
+                an invalid input, but just skip it.
+        Returns:
+            List[Type[ExactOnlineBaseModel]]: A list of instances of a subclass of ExactOnlineBaseModel.
+        """
+        results = []
+        for page in self.all_paged(
+            query_args=query_args,
+            filters=filters,
+            select=select,
+            expand=expand,
+            max_pages=max_pages,
+            skip_invalid=skip_invalid,
+        ):
+            results += page
         return results

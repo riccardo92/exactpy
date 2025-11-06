@@ -1,6 +1,7 @@
-from typing import List, Type
+from typing import Any, Dict, List, Tuple, Type
 
-from pydantic import create_model
+from loguru import logger
+from pydantic import TypeAdapter, ValidationError, create_model
 
 from exactpy.models.base import ExactOnlineBaseModel
 
@@ -30,3 +31,48 @@ def create_partial_model(
     )
 
     return partial_model
+
+
+def list_model_validate(
+    model: Type[ExactOnlineBaseModel],
+    raw_list: List[Dict[str, Any]],
+    skip_invalid: bool = True,
+    verbose: bool = False,
+) -> Tuple[List[Type[ExactOnlineBaseModel]], List[ValidationError]]:
+    """Attempts to validate a list of python objects using given Pydantic model.
+
+    Args:
+        model (Type[ExactOnlineBaseModel]): The model to use for validation and
+            to use as output model.
+        raw_list (List[Dict[str, Any]]): The list of to be validated input dicts.
+        skip_invalid (bool): Whether to skip dicts in the input that didn't validate.
+            If set to True, a list of validation errors will be given as second
+            element in the output tuple. This will loop over the input list and
+            manually attempt to validate each single model.
+            If set to False, a regular TypeAdapter[List[...]] will be used and an exception
+            will be raised as soon as a model fails to validate. Defaults to True.
+        skip_invalid (bool): Whether to be verbose with logging. Defaults to False.
+
+    Returns:
+        Tuple[List[Type[ExactOnlineBaseModel]], List[ValidationError]]: A tuple of
+            a list of pydantic models and a list of of ValidationErrors for dicts
+            that didn't validate.
+    """
+
+    if not skip_invalid:
+        if verbose:
+            logger.info("Using regular TypeAdapter[List[...]] for validation.")
+        list_adapter = TypeAdapter(List[model])
+        return (list_adapter.validate_python(raw_list), [])
+
+    if verbose:
+        logger.info("Using loop to perform individual model validation.")
+    model_instances = []
+    validation_errors = []
+    for raw_list_item in raw_list:
+        try:
+            model_instances.append(model.model_validate(raw_list_item))
+        except ValidationError as e:
+            validation_errors.append(e)
+
+    return (model_instances, validation_errors)
