@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- bugfixes for inline count
+- **controllers/base.py**: added inline_count arg to all and all_paged methods with doc updates and return type updates
+- **client.py**: added inline count arg to get method
+- **controllers/base.py**: extra logic to deal with different api response structure in case top arg is set
+- **controllers/base.py**: added top arg to all_paged method
+- **controllers/base.py**: added top arg to all method
+- **client.py**: added top arg to get method
+- **controllers/base.py**: added integer cast to count method return value
+- **client.py**: fixed wrong httpx return type hint
+- **controllers/base.py**: added count method making use of the client's count method
+- **client.py**: added count method to use  query arg
+
 ## 0.0.17 (2025-11-06)
 
 ### Fix

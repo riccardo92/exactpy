@@ -7,6 +7,7 @@ from typing import (
     Dict,
     Generator,
     List,
+    Tuple,
     Type,
     Union,
     get_origin,
@@ -163,9 +164,15 @@ class BaseController:
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
         expand: List[str] = [],
+        top: int | None = None,
+        inline_count: bool = False,
         max_pages: int = -1,
         skip_invalid: bool = True,
-    ) -> Generator[List[Type[ExactOnlineBaseModel]], None, None]:
+    ) -> Generator[
+        List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], int],
+        None,
+        None,
+    ]:
         """Retrieve a collection of model instances using given
         filters.
 
@@ -178,11 +185,23 @@ class BaseController:
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
                 so Pascal case). Defaults to [].
+            top (int, Optional): The number of records (from start) to retrieve.
+                Defaults to None, meaning all records.
+            inline_count (bool): Whether to include the inlinecount query arg; this will add
+                a `__count` property to the response body with a count of all records.
+                Note that if top is set, inline count isn't available and this argument will
+                do nothing.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
+                Note that `max_pages` will have no effect when top is set, because there is no
+                paging on the API side in that case.
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
         Returns:
-            Generator[List[Type[ExactOnlineBaseModel]], None, None]: A page level generator that produces lists of instances of a subclass of ExactOnlineBaseModel.
+            Generator[List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], None, None]:
+                A page level generator that produces lists of instances of a subclass of ExactOnlineBaseModel.
+                Depending on whether or not inline_count is set to True, the generator return type is either a
+                list of model instances or a tuple of a list of model instances and integer that represents the
+                number of records.
         """
         if max_pages == 0:
             return []
@@ -219,11 +238,19 @@ class BaseController:
             filters=parsed_filters,
             select=parsed_select,
             expand=expand,
+            top=top,
+            inline_count=inline_count,
         ).json()
+
+        # If top is set, results are not in the sub key
+        # result, but just in the level above that (`d`).
+        raw_results = resp["d"]
+        if top is None:
+            raw_results = raw_results["results"]
 
         # Convert to Pydantic
         results, validation_errors = list_model_validate(
-            model=model, raw_list=resp["d"]["results"], skip_invalid=skip_invalid
+            model=model, raw_list=raw_results, skip_invalid=skip_invalid
         )
 
         if self._client.verbose:
@@ -234,7 +261,16 @@ class BaseController:
             for val_error in validation_errors:
                 logger.error(str(val_error))
 
-        yield results
+        if inline_count and top is None:
+            count = resp["d"]["__count"]
+            yield results, count
+        else:
+            yield results
+
+        # We need to quit early when top is set,
+        # because `d` will a list and will have no property `__next`
+        if top is not None:
+            return
 
         while (next_url := resp["d"].get("__next")) is not None:
             page_count += 1
@@ -254,13 +290,21 @@ class BaseController:
                 filters=parsed_filters,
                 select=parsed_select,
                 expand=expand,
+                top=top,
+                inline_count=inline_count,
                 skip_token=skip_token,
             ).json()
+
+            # If top is set, results are not in the sub key
+            # result, but just in the level above that (`d`).
+            raw_results = resp["d"]
+            if top is None:
+                raw_results = raw_results["results"]
 
             # Convert to Pydantic
             temp_results, validation_errors = list_model_validate(
                 model=model,
-                raw_list=resp["d"]["results"],
+                raw_list=raw_results,
                 skip_invalid=skip_invalid,
             )
 
@@ -272,10 +316,23 @@ class BaseController:
                 for val_error in validation_errors:
                     logger.error(str(val_error))
 
-            yield temp_results
+            if inline_count and top is None:
+                count = resp["d"]["__count"]
+                yield temp_results, count
+            else:
+                yield temp_results
 
         if self._client.verbose:
             logger.info(f"Fetched a total of {len(results)} records.")
+
+    def count(self) -> int:
+        """Uses the `odata` $count query arg to get a count
+        of all records. No filters can be used.
+
+        Returns:
+            int: The count of all records
+        """
+        return int(self._client.count(resource=self._resource).content)
 
     def all(
         self,
@@ -283,9 +340,13 @@ class BaseController:
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
         expand: List[str] = [],
+        top: int | None = None,
+        inline_count: bool = False,
         max_pages: int = -1,
         skip_invalid: bool = True,
-    ) -> List[Type[ExactOnlineBaseModel]]:
+    ) -> (
+        List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], int]
+    ):
         """This is a convenience method, that just collects all pages
         for all_paged into a single list. This might be convenient
         in some cases where there aren't that many results or where
@@ -300,20 +361,49 @@ class BaseController:
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
                 so Pascal case). Defaults to [].
+            top (int, Optional): The number of records (from start) to retrieve.
+                Defaults to None, meaning all records.
+            inline_count (bool): Whether to include the inlinecount query arg; this will add
+                a `__count` property to the response body with a count of all records.
+                Note that if top is set, inline count isn't available and this argument will
+                do nothing.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
+                Note that `max_pages` will have no effect when top is set, because there is no
+                paging on the API side in that case.
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
         Returns:
-            List[Type[ExactOnlineBaseModel]]: A list of instances of a subclass of ExactOnlineBaseModel.
+            List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], int]:
+                Either returns a list of instances of a subclass of ExactOnlineBaseMode or, if inline_count
+                is set to True, a tuple of the aforementioned list and the count of all records.
         """
         results = []
-        for page in self.all_paged(
-            query_args=query_args,
-            filters=filters,
-            select=select,
-            expand=expand,
-            max_pages=max_pages,
-            skip_invalid=skip_invalid,
-        ):
-            results += page
-        return results
+        record_count = 0
+
+        if inline_count and top is None:
+            for page, count in self.all_paged(
+                query_args=query_args,
+                filters=filters,
+                select=select,
+                expand=expand,
+                top=top,
+                inline_count=True,
+                max_pages=max_pages,
+                skip_invalid=skip_invalid,
+            ):
+                results += page
+                record_count = count
+            return results, record_count
+        else:
+            for page in self.all_paged(
+                query_args=query_args,
+                filters=filters,
+                select=select,
+                expand=expand,
+                top=top,
+                inline_count=False,
+                max_pages=max_pages,
+                skip_invalid=skip_invalid,
+            ):
+                results += page
+            return results
