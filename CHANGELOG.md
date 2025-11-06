@@ -61,7 +61,7 @@
 - **controllers**: select now based on pydantic field names, and validation using dynamic partial models
 - **client.py**: bugfix numeric filtering
 - fixed some wrongly named properties in financial models
-- _pk now used as primary key for single object retrieval in show method
+- \_pk now used as primary key for single object retrieval in show method
 - **models/division**: date property fix
 - **client**: added division controller reference
 - **controllers**: implemented vision controller
