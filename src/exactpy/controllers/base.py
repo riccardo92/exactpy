@@ -284,7 +284,7 @@ class BaseController:
         Returns:
             int: The count of all records
         """
-        return self._client.count(resource=self._resource).content
+        return int(self._client.count(resource=self._resource).content)
 
     def all(
         self,
