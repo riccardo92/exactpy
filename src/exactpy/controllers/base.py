@@ -277,6 +277,15 @@ class BaseController:
         if self._client.verbose:
             logger.info(f"Fetched a total of {len(results)} records.")
 
+    def count(self) -> int:
+        """Uses the `odata` $count query arg to get a count
+        of all records. No filters can be used.
+
+        Returns:
+            int: The count of all records
+        """
+        return self._client.count(resource=self._resource).content
+
     def all(
         self,
         query_args: Dict[str, str] = {},
