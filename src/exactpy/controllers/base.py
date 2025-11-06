@@ -7,6 +7,7 @@ from typing import (
     Dict,
     Generator,
     List,
+    Tuple,
     Type,
     Union,
     get_origin,
@@ -164,9 +165,14 @@ class BaseController:
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
+        inline_count: bool = False,
         max_pages: int = -1,
         skip_invalid: bool = True,
-    ) -> Generator[List[Type[ExactOnlineBaseModel]], None, None]:
+    ) -> Generator[
+        List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], int],
+        None,
+        None,
+    ]:
         """Retrieve a collection of model instances using given
         filters.
 
@@ -181,13 +187,19 @@ class BaseController:
                 so Pascal case). Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
+            inline_count (bool): Whether to include the inlinecount query arg; this will add
+                a `__count` property to the response body with a count of all records.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
                 Note that `max_pages` will have no effect when top is set, because there is no
                 paging on the API side in that case.
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
         Returns:
-            Generator[List[Type[ExactOnlineBaseModel]], None, None]: A page level generator that produces lists of instances of a subclass of ExactOnlineBaseModel.
+            Generator[List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], None, None]:
+                A page level generator that produces lists of instances of a subclass of ExactOnlineBaseModel.
+                Depending on whether or not inline_count is set to True, the generator return type is either a
+                list of model instances or a tuple of a list of model instances and integer that represents the
+                number of records.
         """
         if max_pages == 0:
             return []
@@ -245,8 +257,11 @@ class BaseController:
                 )
             for val_error in validation_errors:
                 logger.error(str(val_error))
-
-        yield results
+        if inline_count:
+            count = resp["d"]["__count"]
+            yield results, count
+        else:
+            yield results
 
         # We need to quit early when top is set,
         # because `d` will a list and will have no property `__next`
@@ -296,7 +311,11 @@ class BaseController:
                 for val_error in validation_errors:
                     logger.error(str(val_error))
 
-            yield temp_results
+            if inline_count:
+                count = resp["d"]["__count"]
+                yield temp_results, count
+            else:
+                yield temp_results
 
         if self._client.verbose:
             logger.info(f"Fetched a total of {len(results)} records.")
@@ -317,9 +336,12 @@ class BaseController:
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
+        inline_count: bool = False,
         max_pages: int = -1,
         skip_invalid: bool = True,
-    ) -> List[Type[ExactOnlineBaseModel]]:
+    ) -> (
+        List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], int]
+    ):
         """This is a convenience method, that just collects all pages
         for all_paged into a single list. This might be convenient
         in some cases where there aren't that many results or where
@@ -336,23 +358,45 @@ class BaseController:
                 so Pascal case). Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
+            inline_count (bool): Whether to include the inlinecount query arg; this will add
+                a `__count` property to the response body with a count of all records.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
                 Note that `max_pages` will have no effect when top is set, because there is no
                 paging on the API side in that case.
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
         Returns:
-            List[Type[ExactOnlineBaseModel]]: A list of instances of a subclass of ExactOnlineBaseModel.
+            List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], int]:
+                Either returns a list of instances of a subclass of ExactOnlineBaseMode or, if inline_count
+                is set to True, a tuple of the aforementioned list and the count of all records.
         """
         results = []
-        for page in self.all_paged(
-            query_args=query_args,
-            filters=filters,
-            select=select,
-            expand=expand,
-            top=top,
-            max_pages=max_pages,
-            skip_invalid=skip_invalid,
-        ):
-            results += page
-        return results
+        record_count = 0
+
+        if inline_count:
+            for page, count in self.all_paged(
+                query_args=query_args,
+                filters=filters,
+                select=select,
+                expand=expand,
+                top=top,
+                inline_count=True,
+                max_pages=max_pages,
+                skip_invalid=skip_invalid,
+            ):
+                results += page
+                record_count = count
+            return results, record_count
+        else:
+            for page in self.all_paged(
+                query_args=query_args,
+                filters=filters,
+                select=select,
+                expand=expand,
+                top=top,
+                inline_count=False,
+                max_pages=max_pages,
+                skip_invalid=skip_invalid,
+            ):
+                results += page
+            return results
