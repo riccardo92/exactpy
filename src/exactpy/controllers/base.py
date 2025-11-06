@@ -292,6 +292,7 @@ class BaseController:
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
         expand: List[str] = [],
+        top: int | None = None,
         max_pages: int = -1,
         skip_invalid: bool = True,
     ) -> List[Type[ExactOnlineBaseModel]]:
@@ -309,6 +310,8 @@ class BaseController:
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
                 so Pascal case). Defaults to [].
+            top (int, Optional): The number of records (from start) to retrieve.
+                Defaults to None, meaning all records.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
@@ -321,6 +324,7 @@ class BaseController:
             filters=filters,
             select=select,
             expand=expand,
+            top=top,
             max_pages=max_pages,
             skip_invalid=skip_invalid,
         ):
