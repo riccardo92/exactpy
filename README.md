@@ -121,6 +121,8 @@ client.auth_client.acquire_token(resp_url)
 
 If your cache callable was not set to `None`, your credentials should now have been saved. In the default case, they're saved in `creds.json` (plain text).
 
+### Client usage
+
 Now you can use the client like below:
 
 ```python
