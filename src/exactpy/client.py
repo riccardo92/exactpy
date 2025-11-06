@@ -320,7 +320,7 @@ class Client:
         expand: List[str] = [],
         include_division: bool = True,
         skip_token: str | None = None,
-    ) -> httpx.Reponse:
+    ) -> httpx.Response:
         """Calls a get endpoint.
 
         Args:
