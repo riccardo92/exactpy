@@ -163,6 +163,7 @@ class BaseController:
         filters: Dict[str, Union[str, int, float]] = {},
         select: List[str] = [],
         expand: List[str] = [],
+        top: int | None = None,
         max_pages: int = -1,
         skip_invalid: bool = True,
     ) -> Generator[List[Type[ExactOnlineBaseModel]], None, None]:
@@ -178,6 +179,8 @@ class BaseController:
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
                 so Pascal case). Defaults to [].
+            top (int, Optional): The number of records (from start) to retrieve.
+                Defaults to None, meaning all records.
             max_pages (int, optional): Max number of pages to retrieve. Defaults to -1 (no limit).
             skip_invalid (bool): Whether to not throw a validation error when encountering
                 an invalid input, but just skip it.
@@ -219,6 +222,7 @@ class BaseController:
             filters=parsed_filters,
             select=parsed_select,
             expand=expand,
+            top=top,
         ).json()
 
         # Convert to Pydantic
@@ -254,6 +258,7 @@ class BaseController:
                 filters=parsed_filters,
                 select=parsed_select,
                 expand=expand,
+                top=top,
                 skip_token=skip_token,
             ).json()
 
