@@ -319,6 +319,7 @@ class Client:
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
+        inline_count: bool = False,
         include_division: bool = True,
         skip_token: str | None = None,
     ) -> httpx.Response:
@@ -335,6 +336,8 @@ class Client:
             expand (List[str]): Attributes to expand. Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
+            inline_count (bool): Whether to include the inlinecount query arg; this will add
+                a `__count` property to the response body with a count of all records.
             include_division (bool): Whether to include the current division in the url. Defaults to True.
             skip_token: (str, Optional): A skiptoken query arg, used for paging in the Exact Online
                 rest api. Defaults to None.
@@ -382,6 +385,10 @@ class Client:
         existing_qargs = existing_qargs | (skip_token is not None)
         join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$top={top}")[top is not None]
+
+        existing_qargs = existing_qargs | (top is not None)
+        join_str = ("?", "&")[existing_qargs]
+        url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
 
         req = httpx.get(url=url, headers=headers)
         self._update_rate_limits(req.headers)
