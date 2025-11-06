@@ -225,9 +225,15 @@ class BaseController:
             top=top,
         ).json()
 
+        # If top is set, results are not in the sub key
+        # result, but just in the level above that (`d`).
+        raw_results = resp["d"]
+        if top is None:
+            raw_results = raw_results["results"]
+
         # Convert to Pydantic
         results, validation_errors = list_model_validate(
-            model=model, raw_list=resp["d"]["results"], skip_invalid=skip_invalid
+            model=model, raw_list=raw_results, skip_invalid=skip_invalid
         )
 
         if self._client.verbose:
@@ -239,6 +245,11 @@ class BaseController:
                 logger.error(str(val_error))
 
         yield results
+
+        # We need to quit early when top is set,
+        # because `d` will a list and will have no property `__next`
+        if top is not None:
+            return
 
         while (next_url := resp["d"].get("__next")) is not None:
             page_count += 1
@@ -262,10 +273,16 @@ class BaseController:
                 skip_token=skip_token,
             ).json()
 
+            # If top is set, results are not in the sub key
+            # result, but just in the level above that (`d`).
+            raw_results = resp["d"]
+            if top is None:
+                raw_results = raw_results["results"]
+
             # Convert to Pydantic
             temp_results, validation_errors = list_model_validate(
                 model=model,
-                raw_list=resp["d"]["results"],
+                raw_list=raw_results,
                 skip_invalid=skip_invalid,
             )
 
