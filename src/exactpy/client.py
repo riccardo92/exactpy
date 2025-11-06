@@ -274,6 +274,42 @@ class Client:
                 "Daily limit has been exceeded and the default behavior is to error out. Try again later."
             )
 
+    def count(self, resource: str, include_division: bool = True) -> int:
+        """This method uses the odata `$count` query option to
+        retrieve a count of all records. No filters can be used.
+
+        Args:
+            resource (str): The Exact Online API url resource to use.
+            include_division (bool): Whether to include the current division in the url. Defaults to True.
+
+        Returns:
+            int: The number of available records on the server.
+        """
+        if include_division:
+            self._check_division()
+        division_part = ("", f"/{self.current_division}")[include_division]
+
+        self._check_rate_limits()
+
+        headers = self.auth_client._check_token_and_get_headers()
+        headers.update(BASE_HEADERS)
+
+        # Delete accept header because it isn't needed
+        # for the count api call
+        # See also:
+        # https://support.exactonline.com/community/s/knowledge-base#All-All-DNO-Simulation-query-string-options
+        del headers["Accept"]
+
+        url = f"{self.endpoints_url}{division_part}/{resource}/$count"
+
+        req = httpx.get(url=url, headers=headers)
+        self._update_rate_limits(req.headers)
+        if req.status_code != 200:
+            logger.error(f"Request failed with status code {req.status_code} Content:")
+            print(req.content)
+            req.raise_for_status()
+        return req
+
     def get(
         self,
         resource: str,
@@ -282,9 +318,11 @@ class Client:
         filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
         select: List[str] = [],
         expand: List[str] = [],
+        top: int | None = None,
+        inline_count: bool = False,
         include_division: bool = True,
         skip_token: str | None = None,
-    ):
+    ) -> httpx.Response:
         """Calls a get endpoint.
 
         Args:
@@ -296,8 +334,16 @@ class Client:
             filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or).
             select (List[str]): Attributes to select. Defaults to [].
             expand (List[str]): Attributes to expand. Defaults to [].
+            top (int, Optional): The number of records (from start) to retrieve.
+                Defaults to None, meaning all records.
+            inline_count (bool): Whether to include the inlinecount query arg; this will add
+                a `__count` property to the response body with a count of all records.
+                Note that if top is set, inline count isn't available and this argument will
+                do nothing.
             include_division (bool): Whether to include the current division in the url. Defaults to True.
-            skip_token: (str, Optional): A skiptoken query arg, used for paging in the Exact Online rest api. Defaults to None.
+            skip_token: (str, Optional): A skiptoken query arg, used for paging in the Exact Online
+                rest api. Defaults to None.
+
         Returns:
             httpx.Response: the API call httpx response object.
         """
@@ -338,7 +384,16 @@ class Client:
         join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$skiptoken={skip_token}")[skip_token is not None]
 
+        existing_qargs = existing_qargs | (skip_token is not None)
+        join_str = ("?", "&")[existing_qargs]
+        url += ("", f"{join_str}$top={top}")[top is not None]
+
+        existing_qargs = existing_qargs | (top is not None)
+        join_str = ("?", "&")[existing_qargs]
+        url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
+
         req = httpx.get(url=url, headers=headers)
+
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
             logger.error(f"Request failed with status code {req.status_code} Content:")
@@ -366,6 +421,7 @@ class Client:
             select (List[str]): Attributes to select. Defaults to [].
             expand (List[str]): Attributes to expand. Defaults to [].
             include_division (bool): Whether to include the current division in the url. Defaults to True.
+
         Returns:
             httpx.Response: the API call httpx response object.
         """
