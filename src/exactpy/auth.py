@@ -150,7 +150,7 @@ class Auth:
         self.token_info = {
             "access_token": oauth_session._client.access_token,
             "refresh_token": oauth_session._client.refresh_token,
-            "expires_on": int(time() + oauth_session._client.expires_in),
+            "expires_on": int(time() + float(oauth_session._client.expires_in)),
         }
 
         if self.caching_enabled:
@@ -182,7 +182,7 @@ class Auth:
             self.token_info = {
                 "access_token": oauth_session._client.access_token,
                 "refresh_token": oauth_session._client.refresh_token,
-                "expires_on": int(time() + oauth_session._client.expires_in),
+                "expires_on": int(time() + float(oauth_session._client.expires_in)),
             }
 
             if self.caching_enabled:
