@@ -167,3 +167,112 @@ client.current_division = divisions[n].code
 # system service
 gl_accounts = client.financial.gl_accounts.all()
 ```
+
+## Detailed usage
+
+Every `OData` query arg is supported, except `$skip`; this is because `Exact Online` does not support this. See also: https://support.exactonline.com/community/s/knowledge-base#All-All-DNO-Simulation-query-string-options
+
+Okay fine, on some older endpoints it might actually be supported, but I'm not going to find out which ones those are.
+
+### Filters
+
+Filters are based on exact value matches. Filter field names should use the model field names, not the Exact Online API field names.
+These field names are automatically translated into their Exact Online name variant. Multiple filters are combined using the binary `and` or the binary `or` operator, which can be set using the `FilterOperatorEnum` enum type. Example:
+
+````python
+from exactpy.types import FilterOperatorEnum
+
+# OR
+reporting_balances = client.financial.reporting_balances.all(
+    filters={"reporting_year": 2011, "division": 12},
+    filter_operator=FilterOperatorEnum.OR,
+)
+
+# AND
+reporting_balances = client.financial.reporting_balances.all(
+    filters={"reporting_year": 2011, "division": 12},
+    filter_operator=FilterOperatorEnum.AND,
+)
+
+### Top n results
+Use the `top` argument to select the first `top` results:
+
+```python
+
+# This should give maximum (for two reasons, more on this later) 5 results
+reporting_balances = client.financial.reporting_balances.all(top=5)
+````
+
+### Expand
+
+Embedded models are _not expanded_ by default. Use the `expand` arg to tell the API to expand them. Again, using model field names, not Exact Online API field names. Example:
+
+```python
+accounts = client.crm.accounts.all(expand=["bank_accounts"])
+```
+
+### Select
+
+Use the `select` arg to only retrieve a select number of columns. Again, using model field names, not Exact Online API field names. Example:
+
+```python
+gl_accounts = client.financial.gl_accounts.all(select=["reporting_year"])
+```
+
+### Inline count
+
+Setting `inline_count` to `True` will retrieve the count of all records. In the client this will result in a `tuple` as return type, instead of a simple list of model instances:
+
+```python
+gl_accounts, count = client.financial.gl_accounts.all(select=["reporting_year"], inline_count=True)
+```
+
+### Count only
+
+`OData` also implements a `$count` query arg to only retrieve a count of all records. This is implemented as the `count()` method on the controllers in this package. No options can be set, except for `include_division`, which will tell the client to include the division in the API url or not. Example:
+
+```python
+count = client.financial.gl_accounts.count()
+```
+
+### Paged (generator) vs all results
+
+The underlying way for retrieving records is using a generator that yields every retrieved page as a results list. This is implemented as the `all_paged` method on the controllers. Example usage:
+
+```python
+for page in client.financial.gl_accounts.all_paged(select=["reporting_year"]):
+    for gl_account in page:
+        print(page.model_dump(by_alias=True))
+```
+
+And using inline count:
+
+```python
+for page, count in client.financial.gl_accounts.all_paged(select=["reporting_year"], inline_count=True):
+    print(f"Total count: {count}")
+    for gl_account in page:
+        print(page.model_dump(by_alias=True))
+```
+
+Note that the count given every yield by the generator is the total count, and is the same every time. It is not the count per page.
+
+### Max pages
+
+Setting the `max_pages` arg will result in only retrieving `max_pages` from the API. This competes with the `top` argument. If either one exhausts the number results first, the other isn't effective, obviously.
+
+Note that when you set `inline_count=True`, the API responses are no longer paged and this argument will not do anything at all.
+
+### Skipping invalid
+
+By default, invalid records are skipped. This is not the default pydantic behaviour. Lists of input is usually parsed using for example:
+
+```python
+list_adapter = TypeAdapter(SomeModel)
+list_adapter.validate_python([{"field1": "someval", ...}, ...])
+```
+
+This will raise a `pydantic.ValidationError` when it encounters invalid input (ie input that cannot be validated using that specific model).
+
+This is not really wanted behavior when using the Exact Online API in combination with the strict Pydantic models in this package, as it's very clear that Exact Online API output is known not to adhere to field types described in the API (notoriously, types will sometimes have undocumented values).
+
+Setting `skip_invalid=True`, will skip over these records and log these events (if `verbose=True` on the client). Setting `skip_invalid=False` will result in normal pydantic behavior.
