@@ -253,6 +253,8 @@ class BaseController:
             model=model, raw_list=raw_results, skip_invalid=skip_invalid
         )
 
+        total_count = 0
+
         if self._client.verbose:
             if len(validation_errors) > 0:
                 logger.error(
@@ -261,8 +263,10 @@ class BaseController:
             for val_error in validation_errors:
                 logger.error(str(val_error))
 
+        total_count += len(results)
         if inline_count and top is None:
             count = resp["d"]["__count"]
+
             yield results, count
         else:
             yield results
@@ -316,6 +320,7 @@ class BaseController:
                 for val_error in validation_errors:
                     logger.error(str(val_error))
 
+            total_count += len(temp_results)
             if inline_count and top is None:
                 count = resp["d"]["__count"]
                 yield temp_results, count
@@ -323,7 +328,7 @@ class BaseController:
                 yield temp_results
 
         if self._client.verbose:
-            logger.info(f"Fetched a total of {len(results)} records.")
+            logger.info(f"Fetched a total of {total_count} validated records.")
 
     def count(self) -> int:
         """Uses the `odata` $count query arg to get a count
