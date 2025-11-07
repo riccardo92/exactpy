@@ -151,7 +151,7 @@ divisions = client.system.divisions.all()
 
 # Select the "nth" division and set it as current division
 # n = 0...len(divisions)-1
-client.current_division = divisions[n].code
+client.division = divisions[n].code
 
 # Every request you do, will trigger a token
 # check as well. In the default case, auto-caching is done
