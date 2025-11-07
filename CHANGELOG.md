@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- added FilterOperatorEnum arg to controller get method
+- **auth.py**: added float conversion for expires_in property in oauth session instance for token acquisition and refresh
+- **controllers/base.py**: fixed wrong location for result count addition
+- **controllers/base.py**: fixed wrong calculation of total number of fetched validated records
+
 ## 0.0.19 (2025-11-07)
 
 ### Fix

@@ -18,6 +18,7 @@ from pydantic import BaseModel
 
 from exactpy.exceptions import NoFiltersSetException
 from exactpy.models.base import ExactOnlineBaseModel
+from exactpy.types import FilterOperatorEnum
 from exactpy.utils import create_partial_model, list_model_validate
 
 if TYPE_CHECKING:
@@ -162,6 +163,7 @@ class BaseController:
         self,
         query_args: Dict[str, str] = {},
         filters: Dict[str, Union[str, int, float]] = {},
+        filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
@@ -180,7 +182,8 @@ class BaseController:
             query_args (Dict[str, str]): A dictionary of
                 query arg name and value key pairs to send to the endpoint. Defaults to {}.
             filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key,
-                value pairs. Defaults to {}
+                value pairs. Defaults to {}.
+            filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or). Defaults to FilterOperatorEnum.AND.
             select (List[str], optional): Attributes to select (in Exact Online naming,
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
@@ -195,7 +198,7 @@ class BaseController:
                 Note that `max_pages` will have no effect when top is set, because there is no
                 paging on the API side in that case.
             skip_invalid (bool): Whether to not throw a validation error when encountering
-                an invalid input, but just skip it.
+                an invalid input, but just skip it. Defaults to True.
         Returns:
             Generator[List[Type[ExactOnlineBaseModel]] | Tuple[List[Type[ExactOnlineBaseModel]], None, None]:
                 A page level generator that produces lists of instances of a subclass of ExactOnlineBaseModel.
@@ -232,15 +235,17 @@ class BaseController:
             logger.info(f"Fetching page {page_count + 1}")
 
         # Initial get request to get first page
-        resp = self._client.get(
-            resource=self._resource,
-            query_args=query_arg_dump,
-            filters=parsed_filters,
-            select=parsed_select,
-            expand=expand,
-            top=top,
-            inline_count=inline_count,
-        ).json()
+        client_get_kwargs = {
+            "resource": self._resource,
+            "query_args": query_arg_dump,
+            "filters": parsed_filters,
+            "filter_operator": filter_operator,
+            "select": parsed_select,
+            "expand": expand,
+            "top": top,
+            "inline_count": inline_count,
+        }
+        resp = self._client.get(**client_get_kwargs).json()
 
         # If top is set, results are not in the sub key
         # result, but just in the level above that (`d`).
@@ -253,6 +258,8 @@ class BaseController:
             model=model, raw_list=raw_results, skip_invalid=skip_invalid
         )
 
+        total_count = 0
+
         if self._client.verbose:
             if len(validation_errors) > 0:
                 logger.error(
@@ -261,8 +268,10 @@ class BaseController:
             for val_error in validation_errors:
                 logger.error(str(val_error))
 
+        total_count += len(results)
         if inline_count and top is None:
             count = resp["d"]["__count"]
+
             yield results, count
         else:
             yield results
@@ -285,13 +294,7 @@ class BaseController:
 
             # Get page
             resp = self._client.get(
-                resource=self._resource,
-                query_args=query_arg_dump,
-                filters=parsed_filters,
-                select=parsed_select,
-                expand=expand,
-                top=top,
-                inline_count=inline_count,
+                **client_get_kwargs,
                 skip_token=skip_token,
             ).json()
 
@@ -316,6 +319,7 @@ class BaseController:
                 for val_error in validation_errors:
                     logger.error(str(val_error))
 
+            total_count += len(temp_results)
             if inline_count and top is None:
                 count = resp["d"]["__count"]
                 yield temp_results, count
@@ -323,7 +327,7 @@ class BaseController:
                 yield temp_results
 
         if self._client.verbose:
-            logger.info(f"Fetched a total of {len(results)} records.")
+            logger.info(f"Fetched a total of {total_count} validated records.")
 
     def count(self) -> int:
         """Uses the `odata` $count query arg to get a count
@@ -338,6 +342,7 @@ class BaseController:
         self,
         query_args: Dict[str, str] = {},
         filters: Dict[str, Union[str, int, float]] = {},
+        filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
@@ -357,6 +362,7 @@ class BaseController:
                 query arg name and value key pairs to send to the endpoint. Defaults to {}.
             filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key,
                 value pairs. Defaults to {}
+            filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or). Defaults to FilterOperatorEnum.AND.
             select (List[str], optional): Attributes to select (in Exact Online naming,
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
@@ -379,31 +385,26 @@ class BaseController:
         """
         results = []
         record_count = 0
+        all_paged_kwargs = {
+            "query_args": query_args,
+            "filters": filters,
+            "filter_operator": filter_operator,
+            "select": select,
+            "expand": expand,
+            "top": top,
+            "max_pages": max_pages,
+            "skip_invalid": skip_invalid,
+        }
 
         if inline_count and top is None:
-            for page, count in self.all_paged(
-                query_args=query_args,
-                filters=filters,
-                select=select,
-                expand=expand,
-                top=top,
-                inline_count=True,
-                max_pages=max_pages,
-                skip_invalid=skip_invalid,
-            ):
+            for page, count in self.all_paged(**all_paged_kwargs, inline_count=True):
                 results += page
                 record_count = count
             return results, record_count
         else:
             for page in self.all_paged(
-                query_args=query_args,
-                filters=filters,
-                select=select,
-                expand=expand,
-                top=top,
+                **all_paged_kwargs,
                 inline_count=False,
-                max_pages=max_pages,
-                skip_invalid=skip_invalid,
             ):
                 results += page
             return results
