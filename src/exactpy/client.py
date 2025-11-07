@@ -1,6 +1,5 @@
 import time
 from datetime import datetime
-from enum import StrEnum
 from pathlib import Path
 from typing import Callable, Dict, List, Type
 from urllib.parse import parse_qs, urlparse
@@ -52,13 +51,9 @@ from exactpy.controllers.system import (
     MeController,
 )
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
+from exactpy.types import FilterOperatorEnum
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
-
-
-class FilterOperatorEnum(StrEnum):
-    AND = "and"
-    OR = "or"
 
 
 class Namespace: ...
