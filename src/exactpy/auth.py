@@ -216,6 +216,8 @@ class Auth:
         """Performs token refresh if needed and returns bearer token header"""
 
         if self.is_token_refresh_needed():
+            if self.verbose:
+                logger.info("Token expired, refresh is needed.")
             self.refresh_token()
 
         return {"Authorization": f"Bearer {self.token_info['access_token']}"}
