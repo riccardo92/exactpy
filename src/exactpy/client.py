@@ -162,7 +162,7 @@ class Client:
         return self._division
 
     @division.setter
-    def a(self, val):
+    def division(self, val):
         self._division = val
 
     @staticmethod
