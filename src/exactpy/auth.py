@@ -197,16 +197,19 @@ class Auth:
                 "Token could not be refreshed. Exception message: {e}"
             )
 
-    def is_token_refresh_needed(self, now: float = time()) -> bool:
+    def is_token_refresh_needed(self, now: float | None = None) -> bool:
         """Determines whether a token refresh is needed.
 
         Args:
-            now (float, optional): how soon is now? Defaults to time().
-                This is needed to be able to have
+            now (float, Optional): how soon is now?
+                This is needed to be able to simulate expiration in
+                unit tests. Defaults to None. In case it's None,
+                it'll be set to time.time() in the method body.
 
         Returns:
             bool: whether a token refresh is needed
         """
+        now = (now, time())[now is None]
         return self.token_info.get("expires_on", 0) - now < 30
 
     def _check_token_and_get_headers(self):
