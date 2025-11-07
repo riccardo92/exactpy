@@ -74,7 +74,7 @@ class Client:
         auth_url: str | None = None,
         token_url: str | None = None,
         endpoints_url: str | None = None,
-        current_division: int | None = None,
+        division: int | None = None,
         verbose: bool = True,
     ):
         """An Exact Online Python client.
@@ -98,7 +98,7 @@ class Client:
             auth_url (str | None, optional): The auth base url. Defaults to None. If unset (None), it will be derived from base_url.
             token_url (str | None, optional): _description_. Defaults to None. If unset (None), it will be derived from base_url.
             endpoints_url (str | None, optional): the v1 endpoints url. Defaults to None. If unset (None), it will be derived from base_url
-            current_division (int, optional): The current division to use. Defaults to None.
+            division (int, optional): The current division to use. Defaults to None.
             verbose (bool, optional): _description_. Defaults to True.
         """
 
@@ -106,7 +106,7 @@ class Client:
         self.client_secret = client_secret
         self.verbose = verbose
 
-        self.current_division = current_division
+        self.division = division
 
         self.base_url = base_url.rstrip("/")
         if not self.base_url.endswith("api"):
@@ -156,6 +156,14 @@ class Client:
         self._rate_limits_minutely_reset = -1.0
 
         self._setup_namespaces_and_controllers()
+
+    @property
+    def division(self):
+        return self._division
+
+    @division.setter
+    def a(self, val):
+        self._division = val
 
     @staticmethod
     def _parse_query_args(query_args: Dict[str, str]) -> str:
@@ -214,7 +222,7 @@ class Client:
         return parse_qs(parsed_url.query)["$skiptoken"][0]
 
     def _check_division(self):
-        if self.current_division is None:
+        if self.division is None:
             raise NoDivisionSetException(
                 "You must set a division. You can pass this on init (current_division arg) or set it using client.division = client.get_current_division_id()."
             )
@@ -223,14 +231,14 @@ class Client:
         """When no calls have been made, there is no current division yet.
         This method retrieves the current division from the api and sets it
         as the current division in the client."""
-        self.current_division = self.get_current_division_id()
+        self.division = self.get_current_division_id()
 
     def get_current_division_id(self):
         """Retrieve current division id from the api"""
         return self.system.me.show().current_division
 
     def get_current_division(self):
-        return self.system.divisions.show(primary_key_value=self.current_division)
+        return self.system.divisions.show(primary_key_value=self.division)
 
     def _update_rate_limits(self, headers: httpx.Headers):
         """Updates usages and rate limits for current client
@@ -282,7 +290,7 @@ class Client:
         """
         if include_division:
             self._check_division()
-        division_part = ("", f"/{self.current_division}")[include_division]
+        division_part = ("", f"/{self.division}")[include_division]
 
         self._check_rate_limits()
 
@@ -344,7 +352,7 @@ class Client:
         """
         if include_division:
             self._check_division()
-        division_part = ("", f"/{self.current_division}")[include_division]
+        division_part = ("", f"/{self.division}")[include_division]
 
         self._check_rate_limits()
 
@@ -430,7 +438,7 @@ class Client:
         parsed_select = ",".join(select)
         parsed_expand = ",".join(expand)
 
-        division_part = ("", f"/{self.current_division}")[include_division]
+        division_part = ("", f"/{self.division}")[include_division]
         url = f"{self.endpoints_url}{division_part}/{resource}"
         if is_guid:
             url += f"?$filter={primary_key} eq guid '{primary_key_value}'"
