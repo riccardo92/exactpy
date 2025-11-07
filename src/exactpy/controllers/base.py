@@ -263,9 +263,10 @@ class BaseController:
             for val_error in validation_errors:
                 logger.error(str(val_error))
 
+        total_count += len(results)
         if inline_count and top is None:
             count = resp["d"]["__count"]
-            total_count += len(results)
+
             yield results, count
         else:
             yield results
@@ -319,9 +320,9 @@ class BaseController:
                 for val_error in validation_errors:
                     logger.error(str(val_error))
 
+            total_count += len(temp_results)
             if inline_count and top is None:
                 count = resp["d"]["__count"]
-                total_count += len(temp_results)
                 yield temp_results, count
             else:
                 yield temp_results
