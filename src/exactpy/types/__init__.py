@@ -178,3 +178,8 @@ class DivisionStatusEnum(IntEnum):
     INACTIVE = 0
     ACTIVE = 1
     ARCHIVED = 2
+
+
+class FilterOperatorEnum(StrEnum):
+    AND = "and"
+    OR = "or"
