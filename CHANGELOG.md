@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **auth.py**: added log statement to expiration check for easier debugging
+- **auth.py**: removed default time() value for now arg in is_token_refresh_needed to fix expiration check bug
+
 ## 0.0.18 (2025-11-06)
 
 ### Fix
