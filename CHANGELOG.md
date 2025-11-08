@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **client.py**: removed obselete Namespace class
+- **client.py**: implemented httpxretry's RetryTransport
+- **client.py**: refactored namespace and controller structure, now with static properties
+- **client.py**: fixed wrongly named division setter
+- **client.py**: property and setter and getter for active division
+
 ## 0.0.20 (2025-11-07)
 
 ### Fix
