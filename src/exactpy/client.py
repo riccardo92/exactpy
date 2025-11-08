@@ -18,9 +18,6 @@ from exactpy.types import FilterOperatorEnum
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 
 
-class Namespace: ...
-
-
 class Client:
     crm: CRMNamespace
     financial: FinancialNamespace
