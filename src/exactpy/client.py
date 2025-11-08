@@ -5,6 +5,7 @@ from typing import Callable, Dict, List, Type
 from urllib.parse import parse_qs, urlparse
 
 import httpx
+from httpx_retries import RetryTransport
 from loguru import logger
 
 from exactpy.auth import Auth
@@ -270,7 +271,9 @@ class Client:
 
         url = f"{self.endpoints_url}{division_part}/{resource}/$count"
 
-        req = httpx.get(url=url, headers=headers)
+        with httpx.Client(transport=RetryTransport()) as httpx_client:
+            req = httpx_client.get(url=url, headers=headers)
+
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
             logger.error(f"Request failed with status code {req.status_code} Content:")
@@ -360,7 +363,8 @@ class Client:
         join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
 
-        req = httpx.get(url=url, headers=headers)
+        with httpx.Client(transport=RetryTransport()) as httpx_client:
+            req = httpx_client.get(url=url, headers=headers)
 
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
@@ -412,7 +416,8 @@ class Client:
         url += ("", f"&$select={parsed_select}")[len(select) > 0]
         url += ("", f"&$expand={parsed_expand}")[len(expand) > 0]
 
-        req = httpx.get(url=url, headers=headers)
+        with httpx.Client(transport=RetryTransport()) as httpx_client:
+            req = httpx_client.get(url=url, headers=headers)
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
             logger.error(f"Request failed with status code {req.status_code} Content:")
