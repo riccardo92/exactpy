@@ -151,7 +151,7 @@ divisions = client.system.divisions.all()
 
 # Select the "nth" division and set it as current division
 # n = 0...len(divisions)-1
-client.current_division = divisions[n].code
+client.division = divisions[n].code
 
 # Every request you do, will trigger a token
 # check as well. In the default case, auto-caching is done
@@ -193,6 +193,18 @@ reporting_balances = client.financial.reporting_balances.all(
     filters={"reporting_year": 2011, "division": 12},
     filter_operator=FilterOperatorEnum.AND,
 )
+```
+
+Obviously, because they're enums, you can also use the enum values themselves. Example:
+
+
+```python
+
+reporting_balances = client.financial.reporting_balances.all(
+    filters={"reporting_year": 2011, "division": 12},
+    filter_operator="and", # use "and" or "or" (enum values)
+)
+```
 
 ### Top n results
 Use the `top` argument to select the first `top` results:

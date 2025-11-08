@@ -5,61 +5,24 @@ from typing import Callable, Dict, List, Type
 from urllib.parse import parse_qs, urlparse
 
 import httpx
+from httpx_retries import RetryTransport
 from loguru import logger
 
 from exactpy.auth import Auth
-from exactpy.controllers.crm import (
-    AccountController,
-)
-from exactpy.controllers.financial import (
-    AgingOverviewByAccountController,
-    AgingOverviewController,
-    AgingPayablesListByAgeGroupController,
-    AgingPayablesListController,
-    AgingReceivablesListByAgeGroupController,
-    AgingReceivablesListController,
-    DeductibilityPercentageController,
-    ExchangeRateController,
-    FinancialPeriodController,
-    GLAccountClassificationMappingsController,
-    GLAccountController,
-    GLSchemeController,
-    GLTransactionSourceController,
-    GLTransactionTypeController,
-    JournalController,
-    JournalStatusListController,
-    OfficialReturnController,
-    OustandingInvoicesOverviewController,
-    PayablesListByAccountAndAgeGroupController,
-    PayablesListByAccountController,
-    PayablesListByAgeGroupController,
-    PayablesListController,
-    ProfitLossOverviewController,
-    ReceivablesListByAccountAndAgeGroupController,
-    ReceivablesListByAccountController,
-    ReceivablesListByAgeGroupController,
-    ReceivablesListController,
-    ReportingBalanceByClassificationController,
-    ReportingBalanceController,
-    ReturnController,
-    RevenueListByYearAndStatusController,
-    RevenueListByYearController,
-    RevenueListController,
-)
-from exactpy.controllers.system import (
-    DivisionController,
-    MeController,
-)
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
+from exactpy.namespaces.crm import CRMNamespace
+from exactpy.namespaces.financial import FinancialNamespace
+from exactpy.namespaces.system import SystemNamespace
 from exactpy.types import FilterOperatorEnum
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 
 
-class Namespace: ...
-
-
 class Client:
+    crm: CRMNamespace
+    financial: FinancialNamespace
+    system: SystemNamespace
+
     def __init__(
         self,
         client_id: str,
@@ -74,7 +37,7 @@ class Client:
         auth_url: str | None = None,
         token_url: str | None = None,
         endpoints_url: str | None = None,
-        current_division: int | None = None,
+        division: int | None = None,
         verbose: bool = True,
     ):
         """An Exact Online Python client.
@@ -98,7 +61,7 @@ class Client:
             auth_url (str | None, optional): The auth base url. Defaults to None. If unset (None), it will be derived from base_url.
             token_url (str | None, optional): _description_. Defaults to None. If unset (None), it will be derived from base_url.
             endpoints_url (str | None, optional): the v1 endpoints url. Defaults to None. If unset (None), it will be derived from base_url
-            current_division (int, optional): The current division to use. Defaults to None.
+            division (int, optional): The current division to use. Defaults to None.
             verbose (bool, optional): _description_. Defaults to True.
         """
 
@@ -106,7 +69,7 @@ class Client:
         self.client_secret = client_secret
         self.verbose = verbose
 
-        self.current_division = current_division
+        self.division = division
 
         self.base_url = base_url.rstrip("/")
         if not self.base_url.endswith("api"):
@@ -156,6 +119,14 @@ class Client:
         self._rate_limits_minutely_reset = -1.0
 
         self._setup_namespaces_and_controllers()
+
+    @property
+    def division(self):
+        return self._division
+
+    @division.setter
+    def division(self, val):
+        self._division = val
 
     @staticmethod
     def _parse_query_args(query_args: Dict[str, str]) -> str:
@@ -214,7 +185,7 @@ class Client:
         return parse_qs(parsed_url.query)["$skiptoken"][0]
 
     def _check_division(self):
-        if self.current_division is None:
+        if self.division is None:
             raise NoDivisionSetException(
                 "You must set a division. You can pass this on init (current_division arg) or set it using client.division = client.get_current_division_id()."
             )
@@ -223,14 +194,14 @@ class Client:
         """When no calls have been made, there is no current division yet.
         This method retrieves the current division from the api and sets it
         as the current division in the client."""
-        self.current_division = self.get_current_division_id()
+        self.division = self.get_current_division_id()
 
     def get_current_division_id(self):
         """Retrieve current division id from the api"""
         return self.system.me.show().current_division
 
     def get_current_division(self):
-        return self.system.divisions.show(primary_key_value=self.current_division)
+        return self.system.divisions.show(primary_key_value=self.division)
 
     def _update_rate_limits(self, headers: httpx.Headers):
         """Updates usages and rate limits for current client
@@ -282,7 +253,7 @@ class Client:
         """
         if include_division:
             self._check_division()
-        division_part = ("", f"/{self.current_division}")[include_division]
+        division_part = ("", f"/{self.division}")[include_division]
 
         self._check_rate_limits()
 
@@ -297,7 +268,9 @@ class Client:
 
         url = f"{self.endpoints_url}{division_part}/{resource}/$count"
 
-        req = httpx.get(url=url, headers=headers)
+        with httpx.Client(transport=RetryTransport()) as httpx_client:
+            req = httpx_client.get(url=url, headers=headers)
+
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
             logger.error(f"Request failed with status code {req.status_code} Content:")
@@ -344,7 +317,7 @@ class Client:
         """
         if include_division:
             self._check_division()
-        division_part = ("", f"/{self.current_division}")[include_division]
+        division_part = ("", f"/{self.division}")[include_division]
 
         self._check_rate_limits()
 
@@ -387,7 +360,8 @@ class Client:
         join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
 
-        req = httpx.get(url=url, headers=headers)
+        with httpx.Client(transport=RetryTransport()) as httpx_client:
+            req = httpx_client.get(url=url, headers=headers)
 
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
@@ -430,7 +404,7 @@ class Client:
         parsed_select = ",".join(select)
         parsed_expand = ",".join(expand)
 
-        division_part = ("", f"/{self.current_division}")[include_division]
+        division_part = ("", f"/{self.division}")[include_division]
         url = f"{self.endpoints_url}{division_part}/{resource}"
         if is_guid:
             url += f"?$filter={primary_key} eq guid '{primary_key_value}'"
@@ -439,7 +413,8 @@ class Client:
         url += ("", f"&$select={parsed_select}")[len(select) > 0]
         url += ("", f"&$expand={parsed_expand}")[len(expand) > 0]
 
-        req = httpx.get(url=url, headers=headers)
+        with httpx.Client(transport=RetryTransport()) as httpx_client:
+            req = httpx_client.get(url=url, headers=headers)
         self._update_rate_limits(req.headers)
         if req.status_code != 200:
             logger.error(f"Request failed with status code {req.status_code} Content:")
@@ -450,71 +425,6 @@ class Client:
     def _setup_namespaces_and_controllers(self):
         """Register namespaces and initialize controller classes."""
         # Set up namespaces
-        self.financial = Namespace()
-        self.crm = Namespace()
-        self.system = Namespace()
-
-        # Set up endpoints
-        self.financial.aging_overviews = AgingOverviewController(self)
-        self.financial.aging_overviews_by_account = AgingOverviewByAccountController(
-            self
-        )
-        self.financial.aging_payables_lists = AgingPayablesListController(self)
-        self.financial.aging_payables_lists_by_age = (
-            AgingPayablesListByAgeGroupController(self)
-        )
-        self.financial.aging_receivables_lists = AgingReceivablesListController(self)
-        self.financial.aging_receivables_lists_by_age = (
-            AgingReceivablesListByAgeGroupController(self)
-        )
-        self.financial.deductibilities = DeductibilityPercentageController(self)
-        self.financial.exchange_rates = ExchangeRateController(self)
-        self.financial.financial_periods = FinancialPeriodController(self)
-        self.financial.gl_accounts_classification_mappings = (
-            GLAccountClassificationMappingsController(self)
-        )
-        self.financial.gl_accounts = GLAccountController(self)
-        self.financial.gl_schemes = GLSchemeController(self)
-        self.financial.gl_transaction_sources = GLTransactionSourceController(self)
-        self.financial.gl_transaction_types = GLTransactionTypeController(self)
-
-        self.financial.journal_status_lists = JournalStatusListController(self)
-        self.financial.journals = JournalController(self)
-        self.financial.official_returns = OfficialReturnController(self)
-        self.financial.outstanding_invoices_overviews = (
-            OustandingInvoicesOverviewController(self)
-        )
-        self.financial.payables_lists = PayablesListController(self)
-        self.financial.payables_lists_by_account = PayablesListByAccountController(self)
-        self.financial.payables_lists_by_age_group = PayablesListByAgeGroupController(
-            self
-        )
-        self.financial.payables_lists_by_account_and_age_group = (
-            PayablesListByAccountAndAgeGroupController(self)
-        )
-
-        self.financial.receivables_lists = ReceivablesListController(self)
-        self.financial.receivables_lists_by_account = (
-            ReceivablesListByAgeGroupController(self)
-        )
-        self.financial.receivables_lists_by_age_group = (
-            ReceivablesListByAccountController(self)
-        )
-        self.financial.receivables_lists_by_account_and_age_group = (
-            ReceivablesListByAccountAndAgeGroupController(self)
-        )
-        self.financial.profit_loss_overviews = ProfitLossOverviewController(self)
-        self.financial.reporting_balances = ReportingBalanceController(self)
-        self.financial.reporting_balances_by_classification = (
-            ReportingBalanceByClassificationController(self)
-        )
-        self.financial.returns = ReturnController(self)
-        self.financial.revenue_lists = RevenueListController(self)
-        self.financial.revenue_lists_by_year = RevenueListByYearController(self)
-        self.financial.revenue_lists_by_year_and_status = (
-            RevenueListByYearAndStatusController(self)
-        )
-
-        self.crm.accounts = AccountController(self)
-        self.system.me = MeController(self)
-        self.system.divisions = DivisionController(self)
+        self.financial = FinancialNamespace(self)
+        self.crm = CRMNamespace(self)
+        self.system = SystemNamespace(self)
