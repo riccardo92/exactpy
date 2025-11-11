@@ -176,44 +176,65 @@ Okay fine, on some older endpoints it might actually be supported, but I'm not g
 
 ### Filters
 
-Filters are based on exact value matches. Filter field names should use the model field names, not the Exact Online API field names.
-These field names are automatically translated into their Exact Online name variant. Multiple filters are combined using the binary `and` or the binary `or` operator, which can be set using the `FilterOperatorEnum` enum type. Example:
+All of the `odata` filter operators are supported. The full list can be found it the enum `exactpy.types.FilterOperatorEnum`.
 
-````python
+Filters are passed a list to the controller and should contain dicts containing `key`, `val`, `op` and optionally, `meta` key value pairs.
+
+The `key` should refer to the name of the field, the `val` to the filter value, the `op` to the filter operator. For one filter type, substring, a second parameter `length` is needed. This can be passed by passing an explicit `meta` dict, with the structure `meta={"length": <some_int>}`.
+
+Example filters param:
+
+```bash
+[{"key": "reporting_year", "val": 2025, "op": "eq"}]
+```
+
+You can also use an explicit enum property for the `op`.:
+
+```python
 from exactpy.types import FilterOperatorEnum
+
+[{"key": "reporting_year", "val": 2025, "op": FilterOperatorEnum.EQUALS}]
+```
+
+Filter field names should use the model field names, not the Exact Online API field names.
+These field names are automatically translated into their Exact Online name variant. Multiple filters are combined using the binary `and` or the binary `or` operator, which can be set using the `FilterCombinationOperatorEnum` enum type. Example:
+
+```python
+from exactpy.types import FilterCombinationOperatorEnum
 
 # OR
 reporting_balances = client.financial.reporting_balances.all(
-    filters={"reporting_year": 2011, "division": 12},
-    filter_operator=FilterOperatorEnum.OR,
+    filters=[{"key": "reporting_year", "val": 2025, "op": "eq"}, {"key": "reporting_year", "val": 2024, "op": "eq"}],
+    filter_combination_operator=FilterCombinationOperatorEnum.OR,
 )
 
 # AND
 reporting_balances = client.financial.reporting_balances.all(
-    filters={"reporting_year": 2011, "division": 12},
-    filter_operator=FilterOperatorEnum.AND,
+    filters=[{"key": "reporting_year", "val": 2025, "op": "eq"}],
+    filter_combination_operator=FilterCombinationOperatorEnum.AND,
 )
 ```
 
 Obviously, because they're enums, you can also use the enum values themselves. Example:
 
-
 ```python
-
 reporting_balances = client.financial.reporting_balances.all(
-    filters={"reporting_year": 2011, "division": 12},
-    filter_operator="and", # use "and" or "or" (enum values)
+    filters=[{"key": "reporting_year", "val": 2025, "op": "eq"}],
+    filter_combination_operator="and", # use "and" or "or" (enum values)
 )
 ```
 
+Note that the `or` filter combination operator can only be used if the keys of multiple filters are all identical (e.g. all filters filter on the same field). I haven't verified this, but the `Exact Online` docs says so.
+
 ### Top n results
+
 Use the `top` argument to select the first `top` results:
 
 ```python
 
 # This should give maximum (for two reasons, more on this later) 5 results
 reporting_balances = client.financial.reporting_balances.all(top=5)
-````
+```
 
 ### Expand
 
@@ -229,6 +250,32 @@ Use the `select` arg to only retrieve a select number of columns. Again, using m
 
 ```python
 gl_accounts = client.financial.gl_accounts.all(select=["reporting_year"])
+```
+
+## Order by
+
+You can order by a certain field name by setting the `order_by` arg of the controller (`all` or `all_paged` methods) to a dict of the following structure:
+
+```python
+from types import OrderByDirectionEnum
+
+# Ascending
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": OrderByDirectionEnum.ASC })
+
+# Descending
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": OrderByDirectionEnum.DESC })
+```
+
+Again, as can be seen, using model field names, not Exact Online API field names.
+
+Regular strings `desc` and `asc` are also supported:
+
+```python
+from types import OrderByDirectionEnum
+
+# Ascending
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": "asc" })
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": "desc" })
 ```
 
 ### Inline count
