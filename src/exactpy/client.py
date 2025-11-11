@@ -10,10 +10,11 @@ from loguru import logger
 
 from exactpy.auth import Auth
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
+from exactpy.models.filters import FilterModel
 from exactpy.namespaces.crm import CRMNamespace
 from exactpy.namespaces.financial import FinancialNamespace
 from exactpy.namespaces.system import SystemNamespace
-from exactpy.types import FilterOperatorEnum
+from exactpy.types import FilterCombinationOperatorEnum
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 
@@ -146,28 +147,24 @@ class Client:
 
     @staticmethod
     def _parse_filters(
-        filters: Dict[str, str], filter_operator: Type[FilterOperatorEnum]
+        filters: List[Dict[str, str]],
+        filter_combination_operator: Type[FilterCombinationOperatorEnum],
     ) -> str:
         """Build url filter string from filter dict.
 
         Args:
-            filters (Dict[str, str]): The filter key value pairs.
+            filters (List[Dict[str, str]]): List of the filter key value pairs.
 
         Returns:
             str: Filters in Exact Online string form.
         """
         parsed_filters = []
-        op = str(filter_operator)
-        for key, val in filters.items():
-            # We only want quotes for strings, not for bools and numerics
-            qu = (
-                ""
-                if (isinstance(val, str) and val.lower() in ("true", "false"))
-                or isinstance(val, int)
-                else "'"
-            )
+        op = str(filter_combination_operator)
+        for filter in filters:
+            # Attempt to validate filter
+            filter_instance = FilterModel(**filter)
             pref = ("", f" {op} ")[len(parsed_filters) > 0]
-            parsed_filters.append(f"{pref}{key} eq {qu}{val}{qu}")
+            parsed_filters.append(f"{pref}{filter_instance.str_value}")
 
         return ",".join(parsed_filters)
 
@@ -283,7 +280,9 @@ class Client:
         resource: str,
         query_args: Dict[str, str] = {},
         filters: Dict[str, str] = {},
-        filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
+        filter_combination_operator: Type[
+            FilterCombinationOperatorEnum
+        ] = FilterCombinationOperatorEnum.AND,
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
@@ -299,7 +298,7 @@ class Client:
                 query arg name and value key pairs to send to the endpoint. Defaults to {}.
             filters (Dict[str, str]): A dictionary of
                 filter name and filter value key pairs to send to the endpoint. Defaults to {}.
-            filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or).
+            filter_combination_operator (Type[FilterCombinationOperatorEnum]): Operator to use to join the filters (and/or).
             select (List[str]): Attributes to select. Defaults to [].
             expand (List[str]): Attributes to expand. Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
@@ -327,7 +326,7 @@ class Client:
         parsed_query_args = Client._parse_query_args(query_args=query_args)
 
         parsed_filters = Client._parse_filters(
-            filters=filters, filter_operator=filter_operator
+            filters=filters, filter_combination_operator=filter_combination_operator
         )
         parsed_select = ",".join(select)
         parsed_expand = ",".join(expand)
@@ -359,6 +358,8 @@ class Client:
         existing_qargs = existing_qargs | (top is not None)
         join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
+
+        print("url", url)
 
         with httpx.Client(transport=RetryTransport()) as httpx_client:
             req = httpx_client.get(url=url, headers=headers)

@@ -4,6 +4,7 @@ import typing
 from typing import (
     TYPE_CHECKING,
     Annotated,
+    Any,
     Dict,
     Generator,
     List,
@@ -18,7 +19,7 @@ from pydantic import BaseModel
 
 from exactpy.exceptions import NoFiltersSetException
 from exactpy.models.base import ExactOnlineBaseModel
-from exactpy.types import FilterOperatorEnum
+from exactpy.types import FilterCombinationOperatorEnum
 from exactpy.utils import create_partial_model, list_model_validate
 
 if TYPE_CHECKING:
@@ -72,7 +73,9 @@ class BaseController:
         # print(query_args_by_alias)
         return query_args_by_alias
 
-    def _check_filters(self, filters: Dict[str, Union[str, int, float]] = {}):
+    def _check_filters(
+        self, filters: List[Dict[str, Any]] = []
+    ) -> List[Dict[str, Any]]:
         """Checks whether (the right) filters have been set in case
         they are mandatory.
 
@@ -96,11 +99,14 @@ class BaseController:
             )
 
         # Convert filter names to Exact Online naming (Pascal case)
-        parsed_filters = {
-            self._model.model_fields[field].alias: value
-            for field, value in filters.items()
-            if field in self._model.model_fields
-        }
+        parsed_filters = [
+            {
+                "key": self._model.model_fields[filter["key"]].alias,
+                "val": filter["val"],
+                "op": filter["op"],
+            }
+            for filter in filters
+        ]
 
         return parsed_filters
 
@@ -162,8 +168,10 @@ class BaseController:
     def all_paged(
         self,
         query_args: Dict[str, str] = {},
-        filters: Dict[str, Union[str, int, float]] = {},
-        filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
+        filters: List[Dict[str, Any]] = [],
+        filter_combination_operator: Type[
+            FilterCombinationOperatorEnum
+        ] = FilterCombinationOperatorEnum.AND,
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
@@ -181,9 +189,8 @@ class BaseController:
         Args:
             query_args (Dict[str, str]): A dictionary of
                 query arg name and value key pairs to send to the endpoint. Defaults to {}.
-            filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key,
-                value pairs. Defaults to {}.
-            filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or). Defaults to FilterOperatorEnum.AND.
+            filters (List[Dict[str, Any]], Optional):  List of dict of filter dicts. Defaults to [].
+            filter_combination_operator (Type[FilterCombinationOperatorEnum]): Operator to use to join the filters (and/or). Defaults to FilterCombinationOperatorEnum.AND.
             select (List[str], optional): Attributes to select (in Exact Online naming,
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
@@ -239,7 +246,7 @@ class BaseController:
             "resource": self._resource,
             "query_args": query_arg_dump,
             "filters": parsed_filters,
-            "filter_operator": filter_operator,
+            "filter_combination_operator": filter_combination_operator,
             "select": parsed_select,
             "expand": expand,
             "top": top,
@@ -341,8 +348,10 @@ class BaseController:
     def all(
         self,
         query_args: Dict[str, str] = {},
-        filters: Dict[str, Union[str, int, float]] = {},
-        filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
+        filters: List[Dict[str, Any]] = [],
+        filter_combination_operator: Type[
+            FilterCombinationOperatorEnum
+        ] = FilterCombinationOperatorEnum.AND,
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
@@ -360,9 +369,8 @@ class BaseController:
         Args:
             query_args (Dict[str, str]): A dictionary of
                 query arg name and value key pairs to send to the endpoint. Defaults to {}.
-            filters (Dict[str, Union[str, int, float]], optional):  Dict of filter key,
-                value pairs. Defaults to {}
-            filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or). Defaults to FilterOperatorEnum.AND.
+            filters (List[Dict[str, Any]], Optional):  List of dict of filter dicts. Defaults to [].
+            filter_combination_operator (Type[FilterCombinationOperatorEnum]): Operator to use to join the filters (and/or). Defaults to FilterCombinationOperatorEnum.AND.
             select (List[str], optional): Attributes to select (in Exact Online naming,
                 so Pascal case). Defaults to [].
             expand (List[str], optional): Attributes to expand (in Exact Online naming,
@@ -388,7 +396,7 @@ class BaseController:
         all_paged_kwargs = {
             "query_args": query_args,
             "filters": filters,
-            "filter_operator": filter_operator,
+            "filter_combination_operator": filter_combination_operator,
             "select": select,
             "expand": expand,
             "top": top,

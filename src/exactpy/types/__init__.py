@@ -180,6 +180,23 @@ class DivisionStatusEnum(IntEnum):
     ARCHIVED = 2
 
 
-class FilterOperatorEnum(StrEnum):
+class FilterCombinationOperatorEnum(StrEnum):
     AND = "and"
     OR = "or"
+
+
+class FilterOperatorEnum(StrEnum):
+    LESS_THAN = "lt"
+    GREATER_THAN = "gt"
+    LESS_THAN_OR_EQUAL_TO = "le"
+    GREATER_THAN_OR_EQUAL_TO = "ge"
+    NUMBER_RANGE = "range"
+    NOT_EQUAL_TO = "ne"
+    EQUAL_TO = "eq"
+    ENDS_WITH = "endswith"
+    STARTS_WITH = "startswith"
+    CONTAINS = "contains"
+    IN_LIST = "isin"
+    SUBSTR = "substr"
+    TOlOWER = "tolower"
+    TOUPPER = "toupper"
