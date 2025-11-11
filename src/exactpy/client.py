@@ -10,10 +10,11 @@ from loguru import logger
 
 from exactpy.auth import Auth
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
+from exactpy.models.query import FilterModel, OrderByModel
 from exactpy.namespaces.crm import CRMNamespace
 from exactpy.namespaces.financial import FinancialNamespace
 from exactpy.namespaces.system import SystemNamespace
-from exactpy.types import FilterOperatorEnum
+from exactpy.types import FilterCombinationOperatorEnum, OrderByDirectionEnum
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 
@@ -146,30 +147,26 @@ class Client:
 
     @staticmethod
     def _parse_filters(
-        filters: Dict[str, str], filter_operator: Type[FilterOperatorEnum]
+        filters: List[Dict[str, str]],
+        filter_combination_operator: Type[FilterCombinationOperatorEnum],
     ) -> str:
         """Build url filter string from filter dict.
 
         Args:
-            filters (Dict[str, str]): The filter key value pairs.
+            filters (List[Dict[str, str]]): List of the filter key value pairs.
 
         Returns:
             str: Filters in Exact Online string form.
         """
-        parsed_filters = []
-        op = str(filter_operator)
-        for key, val in filters.items():
-            # We only want quotes for strings, not for bools and numerics
-            qu = (
-                ""
-                if (isinstance(val, str) and val.lower() in ("true", "false"))
-                or isinstance(val, int)
-                else "'"
-            )
+        parsed_filters = ""
+        op = str(filter_combination_operator)
+        for filter in filters:
+            # Attempt to validate filter
+            filter_instance = FilterModel(**filter)
             pref = ("", f" {op} ")[len(parsed_filters) > 0]
-            parsed_filters.append(f"{pref}{key} eq {qu}{val}{qu}")
+            parsed_filters += f"{pref}{filter_instance.str_value}"
 
-        return ",".join(parsed_filters)
+        return parsed_filters
 
     @staticmethod
     def _get_skip_token(next_url: str) -> str:
@@ -283,10 +280,13 @@ class Client:
         resource: str,
         query_args: Dict[str, str] = {},
         filters: Dict[str, str] = {},
-        filter_operator: Type[FilterOperatorEnum] = FilterOperatorEnum.AND,
+        filter_combination_operator: Type[
+            FilterCombinationOperatorEnum
+        ] = FilterCombinationOperatorEnum.AND,
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
+        order_by: Dict[str, str | Type[OrderByDirectionEnum]] | None = None,
         inline_count: bool = False,
         include_division: bool = True,
         skip_token: str | None = None,
@@ -299,11 +299,14 @@ class Client:
                 query arg name and value key pairs to send to the endpoint. Defaults to {}.
             filters (Dict[str, str]): A dictionary of
                 filter name and filter value key pairs to send to the endpoint. Defaults to {}.
-            filter_operator (Type[FilterOperatorEnum]): Operator to use to join the filters (and/or).
+            filter_combination_operator (Type[FilterCombinationOperatorEnum]): Operator to use to join the filters (and/or).
             select (List[str]): Attributes to select. Defaults to [].
             expand (List[str]): Attributes to expand. Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
+            order_by (Dict[str, str | Type[OrderByDirectionEnum]], Optional).
+                A dict containing the `key` and `direction` properties. Specifies on what field name to order
+                and in which direction to order. Defaults to None.
             inline_count (bool): Whether to include the inlinecount query arg; this will add
                 a `__count` property to the response body with a count of all records.
                 Note that if top is set, inline count isn't available and this argument will
@@ -327,7 +330,7 @@ class Client:
         parsed_query_args = Client._parse_query_args(query_args=query_args)
 
         parsed_filters = Client._parse_filters(
-            filters=filters, filter_operator=filter_operator
+            filters=filters, filter_combination_operator=filter_combination_operator
         )
         parsed_select = ",".join(select)
         parsed_expand = ",".join(expand)
@@ -359,6 +362,12 @@ class Client:
         existing_qargs = existing_qargs | (top is not None)
         join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
+
+        existing_qargs = existing_qargs | inline_count
+        if order_by is not None:
+            order_by = OrderByModel(**order_by)
+            join_str = ("?", "&")[existing_qargs]
+            url += f"{join_str}$orderby={order_by.key} {order_by.direction}"
 
         with httpx.Client(transport=RetryTransport()) as httpx_client:
             req = httpx_client.get(url=url, headers=headers)
