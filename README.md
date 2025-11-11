@@ -252,6 +252,32 @@ Use the `select` arg to only retrieve a select number of columns. Again, using m
 gl_accounts = client.financial.gl_accounts.all(select=["reporting_year"])
 ```
 
+## Order by
+
+You can order by a certain field name by setting the `order_by` arg of the controller (`all` or `all_paged` methods) to a dict of the following structure:
+
+```python
+from types import OrderByDirectionEnum
+
+# Ascending
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": OrderByDirectionEnum.ASC })
+
+# Descending
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": OrderByDirectionEnum.DESC })
+```
+
+Again, as can be seen, using model field names, not Exact Online API field names.
+
+Regular strings `desc` and `asc` are also supported:
+
+```python
+from types import OrderByDirectionEnum
+
+# Ascending
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": "asc" })
+gl_accounts = client.financial.gl_accounts.all(order_by={"key": "reporting_year", "direction": "desc" })
+```
+
 ### Inline count
 
 Setting `inline_count` to `True` will retrieve the count of all records. In the client this will result in a `tuple` as return type, instead of a simple list of model instances:
