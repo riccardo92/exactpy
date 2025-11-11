@@ -158,15 +158,15 @@ class Client:
         Returns:
             str: Filters in Exact Online string form.
         """
-        parsed_filters = []
+        parsed_filters = ""
         op = str(filter_combination_operator)
         for filter in filters:
             # Attempt to validate filter
             filter_instance = FilterModel(**filter)
             pref = ("", f" {op} ")[len(parsed_filters) > 0]
-            parsed_filters.append(f"{pref}{filter_instance.str_value}")
+            parsed_filters += f"{pref}{filter_instance.str_value}"
 
-        return ",".join(parsed_filters)
+        return parsed_filters
 
     @staticmethod
     def _get_skip_token(next_url: str) -> str:
