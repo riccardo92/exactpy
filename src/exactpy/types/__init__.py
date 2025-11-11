@@ -200,3 +200,8 @@ class FilterOperatorEnum(StrEnum):
     SUBSTR = "substr"
     TOlOWER = "tolower"
     TOUPPER = "toupper"
+
+
+class OrderByDirectionEnum(StrEnum):
+    ASC = "asc"
+    DESC = "desc"

@@ -10,11 +10,11 @@ from loguru import logger
 
 from exactpy.auth import Auth
 from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetException
-from exactpy.models.filters import FilterModel
+from exactpy.models.query import FilterModel, OrderByModel
 from exactpy.namespaces.crm import CRMNamespace
 from exactpy.namespaces.financial import FinancialNamespace
 from exactpy.namespaces.system import SystemNamespace
-from exactpy.types import FilterCombinationOperatorEnum
+from exactpy.types import FilterCombinationOperatorEnum, OrderByDirectionEnum
 
 BASE_HEADERS = {"Content-Type": "application/json", "Accept": "application/json"}
 
@@ -286,6 +286,7 @@ class Client:
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
+        order_by: Dict[str, str | Type[OrderByDirectionEnum]] | None = None,
         inline_count: bool = False,
         include_division: bool = True,
         skip_token: str | None = None,
@@ -303,6 +304,9 @@ class Client:
             expand (List[str]): Attributes to expand. Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
+            order_by (Dict[str, str | Type[OrderByDirectionEnum]], Optional).
+                A dict containing the `key` and `direction` properties. Specifies on what field name to order
+                and in which direction to order. Defaults to None.
             inline_count (bool): Whether to include the inlinecount query arg; this will add
                 a `__count` property to the response body with a count of all records.
                 Note that if top is set, inline count isn't available and this argument will
@@ -359,7 +363,11 @@ class Client:
         join_str = ("?", "&")[existing_qargs]
         url += ("", f"{join_str}$inlinecount=allpages")[inline_count]
 
-        print("url", url)
+        existing_qargs = existing_qargs | inline_count
+        if order_by is not None:
+            order_by = OrderByModel(**order_by)
+            join_str = ("?", "&")[existing_qargs]
+            url += f"{join_str}$orderby={order_by.key} {order_by.direction}"
 
         with httpx.Client(transport=RetryTransport()) as httpx_client:
             req = httpx_client.get(url=url, headers=headers)

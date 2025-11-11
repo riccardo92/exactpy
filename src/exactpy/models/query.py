@@ -2,7 +2,12 @@ from typing import Any, Dict, Iterable, List, Tuple
 
 from pydantic import BaseModel, computed_field
 
-from exactpy.types import FilterOperatorEnum
+from exactpy.types import FilterOperatorEnum, OrderByDirectionEnum
+
+
+class OrderByModel(BaseModel):
+    key: str
+    direction: OrderByDirectionEnum
 
 
 class FilterModel(BaseModel):

@@ -19,7 +19,7 @@ from pydantic import BaseModel
 
 from exactpy.exceptions import NoFiltersSetException
 from exactpy.models.base import ExactOnlineBaseModel
-from exactpy.types import FilterCombinationOperatorEnum
+from exactpy.types import FilterCombinationOperatorEnum, OrderByDirectionEnum
 from exactpy.utils import create_partial_model, list_model_validate
 
 if TYPE_CHECKING:
@@ -175,6 +175,7 @@ class BaseController:
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
+        order_by: Dict[str, str | Type[OrderByDirectionEnum]] | None = None,
         inline_count: bool = False,
         max_pages: int = -1,
         skip_invalid: bool = True,
@@ -197,6 +198,9 @@ class BaseController:
                 so Pascal case). Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
+            order_by (Dict[str, str | Type[OrderByDirectionEnum]], Optional).
+                A dict containing the `key` and `direction` properties. Specifies on what field name to order
+                and in which direction to order. Defaults to None.
             inline_count (bool): Whether to include the inlinecount query arg; this will add
                 a `__count` property to the response body with a count of all records.
                 Note that if top is set, inline count isn't available and this argument will
@@ -238,6 +242,11 @@ class BaseController:
         # Parse select cols into Exact Online naming (Pascal case)
         parsed_select = self.fields_to_aliases(fields=select)
 
+        if order_by is not None:
+            order_by["key"] = self.fields_to_aliases([order_by["key"]])[0]
+
+        print("order by", order_by)
+
         if self._client.verbose:
             logger.info(f"Fetching page {page_count + 1}")
 
@@ -250,6 +259,7 @@ class BaseController:
             "select": parsed_select,
             "expand": expand,
             "top": top,
+            "order_by": order_by,
             "inline_count": inline_count,
         }
         resp = self._client.get(**client_get_kwargs).json()
@@ -355,6 +365,7 @@ class BaseController:
         select: List[str] = [],
         expand: List[str] = [],
         top: int | None = None,
+        order_by: Dict[str, str | Type[OrderByDirectionEnum]] | None = None,
         inline_count: bool = False,
         max_pages: int = -1,
         skip_invalid: bool = True,
@@ -377,6 +388,9 @@ class BaseController:
                 so Pascal case). Defaults to [].
             top (int, Optional): The number of records (from start) to retrieve.
                 Defaults to None, meaning all records.
+            order_by (Dict[str, str | Type[OrderByDirectionEnum]], Optional).
+                A dict containing the `key` and `direction` properties. Specifies on what field name to order
+                and in which direction to order. Defaults to None.
             inline_count (bool): Whether to include the inlinecount query arg; this will add
                 a `__count` property to the response body with a count of all records.
                 Note that if top is set, inline count isn't available and this argument will
@@ -400,6 +414,7 @@ class BaseController:
             "select": select,
             "expand": expand,
             "top": top,
+            "order_by": order_by,
             "max_pages": max_pages,
             "skip_invalid": skip_invalid,
         }
