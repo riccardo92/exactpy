@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- implemented order_by param in controller and client to support orderBy query arg
+- **client.py**: bugfix in combining multiple filters
+
 ## 0.0.21 (2025-11-08)
 
 ### Fix
