@@ -245,8 +245,6 @@ class BaseController:
         if order_by is not None:
             order_by["key"] = self.fields_to_aliases([order_by["key"]])[0]
 
-        print("order by", order_by)
-
         if self._client.verbose:
             logger.info(f"Fetching page {page_count + 1}")
 

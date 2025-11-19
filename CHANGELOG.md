@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **controllers/base.py**: removed debug print
+- **models**: replaced wrong FinancialPeriod model attributes
+
 ## 0.0.22 (2025-11-11)
 
 ### Fix
