@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fix
+
+- **controllers/base.py**: removed ABC override
+- added payroll namespace and activeemployment model and controller
+
 ## 0.0.23 (2025-11-19)
 
 ### Fix
