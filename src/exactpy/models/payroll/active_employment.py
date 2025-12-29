@@ -8,7 +8,7 @@ from exactpy.types import (
 )
 
 
-class ActiveEmployment(ExactOnlineBaseModel):
+class ActiveEmploymentModel(ExactOnlineBaseModel):
     _pk = "id"
     id: GUID = SparkField(spark_type="string")
     average_days_per_week: float | None = SparkField(spark_type="double", default=None)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import typing
-from abc import ABC
 from typing import (
     TYPE_CHECKING,
     Annotated,
@@ -27,7 +26,7 @@ if TYPE_CHECKING:
     from exactpy.client import Client
 
 
-class BaseController(ABC):
+class BaseController:
     _resource: str
     _query_args_model: Type[BaseModel] | None = None
     _mandatory_filter_options: List[str] = []

@@ -1,3 +1,3 @@
-from .active_employment import ActiveEmploymentController
+from .active_employment import ActiveEmploymentModel
 
-__all__ = ["ActiveEmploymentController"]
+__all__ = ["ActiveEmploymentModel"]
