@@ -205,3 +205,9 @@ class FilterOperatorEnum(StrEnum):
 class OrderByDirectionEnum(StrEnum):
     ASC = "asc"
     DESC = "desc"
+
+
+class ContractTypeEnum(IntEnum):
+    DEFINITE: 1
+    INDEFINITE: 2
+    EXTERNAL: 3
