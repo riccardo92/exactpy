@@ -1,9 +1,14 @@
-from sparkdantic import SparkField
-
 from exactpy.models.base import ExactOnlineBaseModel
+from exactpy.utils.fields import GenericField
 
 
 class GLTransactionSourceModel(ExactOnlineBaseModel):
-    id: int | None = SparkField(spark_type="integer", default=None)
-    description: str | None = SparkField(spark_type="string", default=None)
-    description_suffix: str | None = SparkField(spark_type="string", default=None)
+    id: int | None = GenericField(
+        iceberg_type="integer", spark_type="integer", default=None
+    )
+    description: str | None = GenericField(
+        iceberg_type="string", spark_type="string", default=None
+    )
+    description_suffix: str | None = GenericField(
+        iceberg_type="string", spark_type="string", default=None
+    )

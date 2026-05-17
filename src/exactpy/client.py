@@ -13,6 +13,7 @@ from exactpy.exceptions import DailyLimitExceededException, NoDivisionSetExcepti
 from exactpy.models.query import FilterModel, OrderByModel
 from exactpy.namespaces.crm import CRMNamespace
 from exactpy.namespaces.financial import FinancialNamespace
+from exactpy.namespaces.payroll import PayrollNamespace
 from exactpy.namespaces.system import SystemNamespace
 from exactpy.types import FilterCombinationOperatorEnum, OrderByDirectionEnum
 
@@ -23,6 +24,7 @@ class Client:
     crm: CRMNamespace
     financial: FinancialNamespace
     system: SystemNamespace
+    payroll: PayrollNamespace
 
     def __init__(
         self,
@@ -437,3 +439,4 @@ class Client:
         self.financial = FinancialNamespace(self)
         self.crm = CRMNamespace(self)
         self.system = SystemNamespace(self)
+        self.payroll = PayrollNamespace(self)
